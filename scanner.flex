@@ -1,6 +1,7 @@
 %{
 #include "token.h"
 #include <stdbool.h>
+#include <stdio.h>
 void stripStringChar();
 bool stringOrIdentSizeIsOkay();
 bool nextIsEscapable(char * s, int subLength);
@@ -69,7 +70,8 @@ int yywrap() { return 1; }
 void stripStringChar() {
 	int length = strlen(yytext);
 	int subLength = 1;
-	for (int i = 1; i < length; i++) {
+	int i, j;
+	for (i = 1; i < length; i++) {
 		yytext[i - subLength] = yytext[i];
 		if (yytext[i] == '\\') {
 			if (nextIsEscapable(&yytext[i], subLength)) {
@@ -78,8 +80,8 @@ void stripStringChar() {
 			}
 		}
 	}
-	for (int i = length - 1; i >= length - subLength - 1; i--) {
-		yytext[i] = 0;
+	for (j = length - 1; j >= length - subLength - 1; j--) {
+		yytext[j] = 0;
 	}
 }
 
