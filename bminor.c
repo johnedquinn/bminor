@@ -28,17 +28,17 @@ extern char *yytext;
 /* PROTOTYPES */
 char * getTokenString(token_t t);
 bool scanInfo (token_t t);
+void printTokenInfo(token_t t);
 
 /// Function: main
-/// Description: 
+/// Description: main driver for bminor
 int main (int argc, char * argv[]) {
 
 	/* Parse Arguments */
 	bool SCAN = false;
 	bool PARSE = false;
 	if (argc != 3) {
-		fprintf(stderr, ANSI_COLOR_RED "USAGE ERROR\n" ANSI_COLOR_RESET);
-		fprintf(stderr, "Correct Syntax Usage: " ANSI_COLOR_CYAN "bminor -FLAG FILE\n" ANSI_COLOR_RESET);
+		fprintf(stderr, ANSI_COLOR_RED "USAGE ERROR" ANSI_COLOR_RESET " -- Correct Syntax Usage: " ANSI_COLOR_CYAN "bminor -FLAG FILE\n" ANSI_COLOR_RESET);
 		exit(1);
 	}
 	if (!strcmp(argv[1], "-scan")) SCAN = true;
@@ -64,8 +64,8 @@ int main (int argc, char * argv[]) {
 
 }
 
-
-
+/// Function: getTokenString
+/// Description: returns representative string for tokens
 char * getTokenString(token_t t) {
 	switch (t) {
 		case TOKEN_EOF:
@@ -175,12 +175,23 @@ char * getTokenString(token_t t) {
 	}
 }
 
+/// Function: printTokenInfo
+/// Description: prints necessary info about token
+void printTokenInfo(token_t t) {
+	if (t == TOKEN_STRING || t == TOKEN_CHAR || t == TOKEN_IDENT || t == TOKEN_NUMBER)
+		printf("%s %s\n", getTokenString(t), yytext);
+	else
+		printf("%s\n", getTokenString(t));
+}
+
+/// Function: scanInfo
+/// Description: performs the scan operation on an input file
 bool scanInfo (token_t t) {
-	if (t == TOKEN_EOF) return false;;
+	if (t == TOKEN_EOF) return false;
 	if (t == TOKEN_ERROR) {
 		fprintf(stderr, "Scan error: %s is not a valid token.\n", yytext);
 		return false;
 	}
-	printf("%s %s\n", getTokenString(t),yytext);
+	printTokenInfo(t);
 	return true;
 }
