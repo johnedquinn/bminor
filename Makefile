@@ -1,19 +1,28 @@
+# File: Makefile
+# Author: John Ed Quinn
+# Description: NA
 
+##### RULES #####
 
-.PHONY: clean
+## Create Program
+bminor: bminor.o scanner.o parser.o
+	gcc $^ -o $@ -lm
 
-bminor: bminor.o scanner.o
-	gcc -std=c99 bminor.o scanner.o -o bminor
+## Create all object files #TODO : Add -Wall flag
+%.o: %.c *.h
+	gcc -c $< -o $@
 
-bminor.o: bminor.c token.h
-	gcc -std=c99 bminor.c -c -o bminor.o
+## Create scanner files
+scanner.c: scanner.flex parser.h
+	flex -o $@ $<
 
-scanner.o: scanner.c token.h
-	gcc -std=gnu99 scanner.c -c -o scanner.o
+## Create parser files
+parser.c parser.h: parser.bison
+	bison --defines=parser.h --output=parser.c -v $<
 
-scanner.c: scanner.flex
-	flex -o scanner.c scanner.flex
-
+## Make clean
 clean:
-	rm -f scanner.c scanner.o bminor.o bminor lex.yy.c
+	rm -f  bminor parser.output parser.c parser.h scanner.c lex.yy.c *.o
 
+## Random 
+.PHONY: clean
