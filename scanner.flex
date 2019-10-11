@@ -95,8 +95,16 @@ bool nextIsEscapable(char * s, int subLength) {
 		case ('"'): s[subLength] = '"'; break;
 		case ('n'): s[subLength] = '\n'; break;
 		case ('\''): s[subLength] = '\''; break;
+		case ('\\'): s[subLength] = '\\'; break;
 		case ('t'): s[subLength] = '\t'; break;
 		case ('0'): s[subLength] = '\0'; break;
+		case ('b'): s[subLength] = '\b'; break;
+		case ('a'): s[subLength] = '\a'; break;
+		case ('e'): s[subLength] = '\e'; break;
+		case ('f'): s[subLength] = '\f'; break;
+		case ('r'): s[subLength] = '\r'; break;
+		case ('v'): s[subLength] = '\v'; break;
+		case ('?'): s[subLength] = '\?'; break;
 		default: return false;
 	}
 	return true;
