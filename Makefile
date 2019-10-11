@@ -1,5 +1,6 @@
 
 
+.PHONY: clean
 
 bminor: bminor.o scanner.o
 	gcc -std=c99 bminor.o scanner.o -o bminor
@@ -15,3 +16,4 @@ scanner.c: scanner.flex
 
 clean:
 	rm -f scanner.c scanner.o bminor.o bminor lex.yy.c
+
