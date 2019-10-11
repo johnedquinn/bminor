@@ -24,6 +24,7 @@
 extern FILE *yyin;
 extern int yylex();
 extern char *yytext;
+extern int yyparse();
 
 /* PROTOTYPES */
 char * getTokenString(token_t t);
@@ -57,6 +58,17 @@ int main (int argc, char * argv[]) {
 			token_t t = yylex();
 			if (t == TOKEN_EOF) break;
 			if (scanInfo(t) == false) exit(1);
+		} else if (PARSE) {
+			if (yyparse() == 0) {
+				printf("parse successful: ");
+				//expr_print(parser_result);
+				//printf("\n");
+				//printf("evaluates to: %d\n", expr_evaluate(parser_result));
+				return 0;
+			} else {
+				printf("parse failed!\n");
+				return 1;
+			}
 		}
 	}
 
