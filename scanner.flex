@@ -33,7 +33,7 @@ false               { return TOKEN_FALSE;               }
 auto                { return TOKEN_TYPE_AUTO;           }
 (_|{LETTER})({LETTER}|{DIGIT}|_)*                       { if (stringOrIdentSizeIsOkay()) return TOKEN_IDENT; else return TOKEN_ERROR; }
 \'(\\[^\s]|[^\\\n])\'                                   {	stripStringChar(); return TOKEN_CHAR;  }
-\"((\\\\|[^\"\\\n]|\\[^\s])*)\"                         { stripStringChar(); if (stringOrIdentSizeIsOkay()) return TOKEN_STRING; else return TOKEN_ERROR;}
+\"(\\[^\s]|[^\"\\\n])*\"                                { stripStringChar(); if (stringOrIdentSizeIsOkay()) return TOKEN_STRING; else return TOKEN_ERROR;}
 \&\&                { return TOKEN_AND;                 }
 \|\|                { return TOKEN_OR;                  }
 {DIGIT}+            { return TOKEN_NUMBER;              }
