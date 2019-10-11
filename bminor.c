@@ -1,12 +1,24 @@
 /*
- * File: 
- *
- */
+ * File: bminor.c
+ * Author: John Ed Quinn
+ * Description: NA
+*/
+
+/* INCLUDES */
 #include "token.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+
+/* DEFINITIONS */
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 
 /* EXTERNS */
 extern FILE *yyin;
@@ -17,12 +29,18 @@ extern char *yytext;
 char * getTokenString(token_t t);
 bool scanInfo (token_t t);
 
+/// Function: main
+/// Description: 
 int main (int argc, char * argv[]) {
 
 	/* Parse Arguments */
 	bool SCAN = false;
 	bool PARSE = false;
-	if (argc != 3) return false;
+	if (argc != 3) {
+		fprintf(stderr, ANSI_COLOR_RED "USAGE ERROR\n" ANSI_COLOR_RESET);
+		fprintf(stderr, "Correct Syntax Usage: " ANSI_COLOR_CYAN "bminor -FLAG FILE\n" ANSI_COLOR_RESET);
+		exit(1);
+	}
 	if (!strcmp(argv[1], "-scan")) SCAN = true;
 	if (!strcmp(argv[1], "-parse")) PARSE = true;
 
