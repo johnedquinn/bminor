@@ -1,0 +1,4 @@
+// Just unnecessary!
+if (true && false && true || false || x < 5 && y != "EXPO") {
+	return true && false;
+}

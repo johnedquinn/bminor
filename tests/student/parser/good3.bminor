@@ -1,0 +1,5 @@
+
+grabArray: function void (a: array [] integer) = {
+	// Maybe it's 2D?
+	x: integer = a[2][2];
+}

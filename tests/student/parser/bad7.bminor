@@ -1,0 +1,6 @@
+
+x: function integer () {
+	if (true) x = 5;
+	else x = 7;
+	else x = 10;
+}

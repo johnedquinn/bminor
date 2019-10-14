@@ -1,0 +1,3 @@
+
+// Maybe it's cool to grab straight froms strings
+c: char = "Hello, world!"[0];

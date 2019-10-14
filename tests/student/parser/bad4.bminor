@@ -1,0 +1,7 @@
+// BAD
+
+x: function void (,) {
+	for (::) {
+		x++;
+	}
+}

@@ -1,0 +1,4 @@
+
+expo: function integer (25, 26, 27) {
+	return 10;
+}

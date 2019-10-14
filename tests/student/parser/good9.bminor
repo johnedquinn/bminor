@@ -1,0 +1,3 @@
+m: function integer (s: string) = {
+	return s;
+}

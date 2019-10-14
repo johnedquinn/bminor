@@ -1,0 +1,8 @@
+
+emptyFor: function boolean () = {
+	for(;;) {
+		// Interesting infinity loop!
+		x = x + 5;
+	}
+	return true;
+}

@@ -1,0 +1,4 @@
+	for (i = 0; i < size; i++) {
+		// We haven't done a FOR loop yet
+		5;
+	}

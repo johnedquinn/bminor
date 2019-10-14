@@ -1,0 +1,2 @@
+// Fun with arrays
+a: integer = {3, 4, 5}[0];

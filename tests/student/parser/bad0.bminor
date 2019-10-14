@@ -1,0 +1,5 @@
+// Incorrect!
+
+x: func() {
+	"hello, world!"
+}

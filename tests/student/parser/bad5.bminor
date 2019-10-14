@@ -1,0 +1,4 @@
+
+x: integer void (x, y, z, d, a) {
+	return;
+}

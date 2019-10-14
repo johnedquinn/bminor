@@ -1,0 +1,3 @@
+x: function boolean (y: integer, z: integer) = {
+	return true;
+}
