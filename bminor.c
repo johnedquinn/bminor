@@ -6,6 +6,7 @@
 
 /* INCLUDES */
 #include "token.h"
+//#include "parser.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -25,6 +26,7 @@ extern FILE *yyin;
 extern int yylex();
 extern char *yytext;
 extern int yyparse();
+extern int parser_result;
 
 /* PROTOTYPES */
 char * getTokenString(token_t t);
@@ -53,22 +55,20 @@ int main (int argc, char * argv[]) {
 	}
 
 	/* Scan tokens and print info */
-	while (1) {
-		if (SCAN) {
+	if (SCAN) {
+		while (1) {
 			token_t t = yylex();
 			if (t == TOKEN_EOF) break;
 			if (scanInfo(t) == false) exit(1);
-		} else if (PARSE) {
-			if (yyparse() == 0) {
-				printf("parse successful: ");
-				//expr_print(parser_result);
-				//printf("\n");
-				//printf("evaluates to: %d\n", expr_evaluate(parser_result));
-				return 0;
-			} else {
-				printf("parse failed!\n");
-				return 1;
-			}
+		}
+	}
+	if (PARSE) {
+		if (yyparse() == 0) {
+			printf("parse successful: \n");
+			return 0;
+		} else {
+			printf("parse failed!\n");
+			return 1;
 		}
 	}
 
@@ -148,35 +148,35 @@ char * getTokenString(token_t t) {
 			return "ASSIGN";
 		case TOKEN_COMMA:
 			return "COMMA";
-    case TOKEN_GREATER_EQUAL:
+    	case TOKEN_GREATER_EQUAL:
 			return "GREATER_EQUAL";
-    case TOKEN_GREATER:
+    	case TOKEN_GREATER:
 			return "GREATER";
-    case TOKEN_EQUAL:
+    	case TOKEN_EQUAL:
 			return "EQUAL";
-    case TOKEN_LESS:
+    	case TOKEN_LESS:
 			return "LESS";
-    case TOKEN_LESS_EQUAL:
+    	case TOKEN_LESS_EQUAL:
 			return "LESS_EQUAL";
-    case TOKEN_NOT_EQUAL:
+    	case TOKEN_NOT_EQUAL:
 			return "NOT_EQUAL";
-    case TOKEN_TRUE:
+    	case TOKEN_TRUE:
 			return "TRUE";
-    case TOKEN_FALSE:
+    	case TOKEN_FALSE:
 			return "FALSE";
-    case TOKEN_TYPE_VOID:
+    	case TOKEN_TYPE_VOID:
 			return "VOID";
-    case TOKEN_TYPE_BOOLEAN:
+    	case TOKEN_TYPE_BOOLEAN:
 			return "BOOLEAN";
 		case TOKEN_TYPE_AUTO:
 			return "AUTO";
-    case TOKEN_TYPE_FUNCTION:
+    	case TOKEN_TYPE_FUNCTION:
 			return "FUNCTION";
-    case TOKEN_TYPE_CHAR:
+    	case TOKEN_TYPE_CHAR:
 			return "CHAR";
-    case TOKEN_TYPE_ARRAY:
+    	case TOKEN_TYPE_ARRAY:
 			return "ARRAY";
-    case TOKEN_PRINT:
+    	case TOKEN_PRINT:
 			return "PRINT";
 		case TOKEN_AND:
 			return "AND";
