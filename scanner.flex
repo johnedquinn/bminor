@@ -1,7 +1,8 @@
 %{
-#include "token.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include "parser.h"
+//#include "token.h"
 void stripStringChar();
 bool stringOrIdentSizeIsOkay();
 bool nextIsEscapable(char * s, int subLength);
@@ -13,7 +14,7 @@ LETTER [a-zA-Z]
 %%
 
 (" "|\t|\n)         /* skip whitespace */
-\/\*.*\*\/		      /* skip whitespace STAR */
+\/\*.*\*\/		    /* skip whitespace STAR */
 \/\/.*$             /* skip whitespace // */
 
 while               { return TOKEN_WHILE;               }
@@ -48,21 +49,21 @@ auto                { return TOKEN_TYPE_AUTO;           }
 \!                  { return TOKEN_NOT;                 }
 \>                  { return TOKEN_GREATER;             }
 \>\=                { return TOKEN_GREATER_EQUAL;       }
-\:                  { return TOKEN_COLON;								}
-\[                  { return TOKEN_L_BRACKET;		        }
-\]                  { return TOKEN_R_BRACKET;		        }
-\(                  { return TOKEN_L_PAREN;		          }
-\)                  { return TOKEN_R_PAREN;		          }
-\{                  { return TOKEN_L_BRACE;		          }
-\}                  { return TOKEN_R_BRACE;		          }
-\=                  { return TOKEN_ASSIGN;		          }
-\,                  { return TOKEN_COMMA;		            }
+\:                  { return TOKEN_COLON;				}
+\[                  { return TOKEN_L_BRACKET;		    }
+\]                  { return TOKEN_R_BRACKET;		    }
+\(                  { return TOKEN_L_PAREN;		        }
+\)                  { return TOKEN_R_PAREN;		        }
+\{                  { return TOKEN_L_BRACE;		        }
+\}                  { return TOKEN_R_BRACE;		        }
+\=                  { return TOKEN_ASSIGN;		        }
+\,                  { return TOKEN_COMMA;		        }
 \+                  { return TOKEN_ADD;                 }
 \*                  { return TOKEN_MULTIPLY;            }
 \/                  { return TOKEN_DIVIDE;              }
 \%                  { return TOKEN_MOD;                 }
 \-                  { return TOKEN_SUBTRACT;            }
-\^                  { return TOKEN_POWER;		          }
+\^                  { return TOKEN_POWER;		        }
 .                   { return TOKEN_ERROR;               }
 %%
 int yywrap() { return 1; }
@@ -107,7 +108,7 @@ bool nextIsEscapable(char * s, int subLength) {
 		case ('r'): s[subLength] = '\r'; break;
 		case ('v'): s[subLength] = '\v'; break;
 		case ('?'): s[subLength] = '\?'; break;
-		default: return false;
+		default: s[subLength] = s[1];
 	}
 	return true;
 }
