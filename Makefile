@@ -13,11 +13,11 @@ bminor: bminor.o scanner.o parser.o
 	gcc -c $< -o $@
 
 ## Create scanner files
-scanner.c: scanner.flex parser.h
+scanner.c: scanner.flex parser.h token.h
 	flex -o $@ $<
 
 ## Create parser files
-parser.c parser.h: parser.bison
+parser.c parser.h: parser.bison token.h
 	bison --defines=parser.h --output=parser.c -v $<
 
 ## Make clean
