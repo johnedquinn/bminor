@@ -58,7 +58,7 @@ int main (int argc, char * argv[]) {
 	if (SCAN) {
 		while (1) {
 			token_t t = yylex();
-			if (t == TOKEN_EOF) break;
+			if (t == TOKEN_EOF || t == 0) break;
 			if (scanInfo(t) == false) exit(1);
 		}
 	}
@@ -79,6 +79,7 @@ int main (int argc, char * argv[]) {
 /// Function: getTokenString
 /// Description: returns representative string for tokens
 char * getTokenString(token_t t) {
+
 	switch (t) {
 		case TOKEN_EOF:
 			return "EOF";

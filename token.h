@@ -4,7 +4,7 @@
 typedef enum
 {
 
-     TOKEN_EOF = 0,
+     TOKEN_EOF = 258,
 
      /* KEYWORDS */
      TOKEN_WHILE,
