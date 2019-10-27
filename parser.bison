@@ -96,9 +96,16 @@ program:
 	| { return 0; }
 	;
 
+stmts:
+	stmt
+	| stmts stmt
+	;
+
 stmt:
 	open_stmt
 	| closed_stmt
+	| other_stmt
+	| decl
 	;
 
 if_then:
@@ -107,33 +114,34 @@ if_then:
 
 open_stmt:
 	if_then open_stmt
-	| if_then other_stmt
+	| if_then simple_stmt TOKEN_SEMICOLON
+	| if_then simple_stmts
 	| if_then closed_stmt TOKEN_ELSE open_stmt
 	;
 
 closed_stmt:
-	if_then closed_stmt TOKEN_ELSE closed_stmt
-	| other_stmt
+	simple_stmt TOKEN_SEMICOLON
+	| simple_stmts
+	| if_then closed_stmt TOKEN_ELSE closed_stmt
 	;
 
-other_stmt:
-	expr TOKEN_SEMICOLON
-	| TOKEN_WHILE TOKEN_L_PAREN expr TOKEN_R_PAREN closed_stmt
-	| TOKEN_FOR TOKEN_L_PAREN for_list TOKEN_R_PAREN closed_stmt
-	| TOKEN_L_BRACE stmts TOKEN_R_BRACE
-	| TOKEN_L_BRACE expr arg_list TOKEN_R_BRACE
-	| TOKEN_PRINT expr arg_list TOKEN_SEMICOLON
-	| TOKEN_PRINT TOKEN_SEMICOLON
-	| TOKEN_RETURN expr TOKEN_SEMICOLON
-	| TOKEN_RETURN TOKEN_SEMICOLON
-	| decl
+other_stmt:	
+	TOKEN_WHILE TOKEN_L_PAREN expr TOKEN_R_PAREN stmt
+	| TOKEN_FOR TOKEN_L_PAREN for_list TOKEN_R_PAREN stmt
 	;
 
-stmts:
-	stmt
-	| stmt stmts
+simple_stmts:
+	TOKEN_L_BRACE stmts TOKEN_R_BRACE
 	;
 
+simple_stmt:
+	TOKEN_L_BRACE expr arg_list TOKEN_R_BRACE
+	| TOKEN_PRINT expr arg_list
+	| TOKEN_PRINT
+	| TOKEN_RETURN expr
+	| TOKEN_RETURN
+	| expr
+	;
 
 for_list:
 	opt_expr TOKEN_SEMICOLON opt_expr TOKEN_SEMICOLON opt_expr
@@ -150,7 +158,7 @@ param:
 
 decl:
 	param TOKEN_SEMICOLON
-	| param TOKEN_ASSIGN stmt
+	| param TOKEN_ASSIGN closed_stmt
 	;
 
 type:
@@ -235,5 +243,5 @@ useful.  In practice, it often does not.
 
 int yyerror (char * str) {
 	printf("parse error: %s\n", str);
-	return 0;
+	return 1;
 }
