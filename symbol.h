@@ -1,3 +1,7 @@
+// @file   : symbol.h
+// @author : John Ed Quinn
+// @desc   : declares the symbol struct
+// @notes  : NA
 
 #ifndef SYMBOL_H
 #define SYMBOL_H

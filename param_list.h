@@ -1,3 +1,7 @@
+// @file   : param_list.h
+// @author : John Ed Quinn
+// @desc   : declares the param_list struct
+// @notes  : NA
 
 #ifndef PARAM_LIST_H
 #define PARAM_LIST_H

@@ -1,3 +1,7 @@
+// @file   : decl.h
+// @author : John Ed Quinn
+// @desc   : declares the decl struct
+// @notes  : NA
 
 #ifndef DECL_H
 #define DECL_H

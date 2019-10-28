@@ -1,3 +1,8 @@
+// @file   : expr.h
+// @author : John Ed Quinn
+// @desc   : declares the expr struct
+// @notes  : NA
+
 #ifndef EXPR_H
 #define EXPR_H
 

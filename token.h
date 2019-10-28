@@ -1,3 +1,8 @@
+// @file   : token.h
+// @author : John Ed Quinn
+// @desc   : declares the token enum
+// @notes  : NA
+
 #ifndef TOKEN_H
 #define TOKEN_H
 

@@ -1,3 +1,7 @@
+// @file   : stmt.h
+// @author : John Ed Quinn
+// @desc   : declares the stmt struct
+// @notes  : NA
 
 #ifndef STMT_H
 #define STMT_H
