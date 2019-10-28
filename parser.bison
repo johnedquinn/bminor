@@ -57,12 +57,28 @@ for use by scanner.c.
 %token TOKEN_COMMA;
 %token TOKEN_ERROR;
 
+%union {
+	struct decl * decl;
+	struct stmt * stmt;
+	struct expr * expr;
+	struct type * type;
+	struct symbol * symbol;
+	struct param_list * param_list;
+};
+
+%type <decl> program decl
+%type <stmt> stmt
+%type <expr> expr
+%type <type> type
+%type <symbol> symbol
+%type <param_list> param_list
+
 %{
 
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-//#include "token.h"
+
 /*
 YYSTYPE is the lexical value returned by each rule in a bison grammar.
 By default, it is an integer. In this example, we are returning a pointer to an expression.
