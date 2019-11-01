@@ -16,6 +16,7 @@ typedef enum {
 	TYPE_STRING,
 	TYPE_ARRAY,
 	TYPE_FUNCTION,
+	TYPE_AUTO
 } type_t;
 
 struct type {

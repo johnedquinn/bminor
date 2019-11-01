@@ -9,10 +9,29 @@
 #include "symbol.h"
 
 typedef enum {
-	EXPR_ADD,
-	EXPR_SUB,
-	EXPR_MUL,
-	EXPR_DIV
+	EXPR_ADD,	// +
+	EXPR_SUB,	// -
+	EXPR_MUL,	// *
+	EXPR_MOD,	// %
+	EXPR_DIV,	// /
+	EXPR_NOT,	// !
+	EXPR_NEG,	// Unary Minus
+	EXPR_POS,	// Unary Plus
+	EXPR_FNC,	// Function
+	EXPR_PRN,	// ( expr )
+	EXPR_POW,	// Power : x^2
+	EXPR_INC,	// Increment ++
+	EXPR_DEC,	// Decrement --
+	EXPR_LES,	// <
+	EXPR_GRE,	// >
+	EXPR_LEQ,	// <=
+	EXPR_GEQ,	// >=
+	EXPR_EQL,	// ==
+	EXPR_NEQ,	// !=
+	EXPR_AND,	// &&
+	EXPR_ORR,	// OR
+	EXPR_ASN,	// Assign =
+	EXPR_IND	// Index []
 	/* many more kinds of exprs to add here */
 } expr_t;
 
