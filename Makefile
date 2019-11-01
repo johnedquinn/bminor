@@ -5,8 +5,12 @@
 ##### RULES #####
 
 ## Create Program
-bminor: bminor.o scanner.o parser.o
+bminor: bminor.o scanner.o parser.o expr.o param_list.o decl.o stmt.o
 	gcc $^ -o $@ -lm
+
+# Create object files for library files
+%.o: %.c %.h
+	gcc -c $< -o $@
 
 ## Create all object files #TODO : Add -Wall flag
 %.o: %.c *.h
