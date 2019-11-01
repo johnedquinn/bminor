@@ -7,6 +7,8 @@
 #define STMT_H
 
 #include "decl.h"
+#include "library.h"
+#include <stdlib.h>
 
 typedef enum {
 	STMT_DECL,

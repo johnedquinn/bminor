@@ -67,10 +67,9 @@ for use by scanner.c.
 };
 
 %type <decl> decl
-//%type <stmt> stmt
-%type <expr> atomic arg_list expr ident subexpr term factor
+%type <stmt> closed_stmt simple_stmt simple_stmts stmt stmts open_stmt if_then other_stmt for_list
+%type <expr> atomic arg_list expr ident subexpr term factor opt_expr
 %type <type> type
-//%type <symbol> symbol
 %type <param_list> param param_list
 
 %{
@@ -87,7 +86,7 @@ YYSTYPE is the lexical value returned by each rule in a bison grammar.
 By default, it is an integer. In this example, we are returning a pointer to an expression.
 */
 
-//#define YYSTYPE expr *
+//#define YYSTYPE stmt
 
 
 /*
@@ -105,85 +104,109 @@ Clunky: Keep the final result of the parse in a global variable,
 so that it can be retrieved by main().
 */
 
-//struct expr * parser_result = 0;
+struct stmt * parser_result = 0;
 
 %}
 
 %%
 
 program:
-	stmts { return 0; }
+	stmts { parser_result = $1; return 0; }
 	| { return 0; }
 	;
 
 stmts:
 	stmt
+		{ $$ = $1; }
 	| stmts stmt
+		{ $$ = stmt_create(STMT_BLOCK, NULL, NULL, NULL, NULL, $1, NULL, $2); }
 	;
 
 stmt:
 	open_stmt
+		{ $$ = $1; }
 	| closed_stmt
+		{ $$ = $1; }
 	| other_stmt
+		{ $$ = $1; }
 	| decl
+		{ $$ = stmt_create(STMT_DECL, $1, NULL, NULL, NULL, NULL, NULL, NULL); }
 	;
 
 if_then:
 	TOKEN_IF TOKEN_L_PAREN expr TOKEN_R_PAREN
+		{ $$ = stmt_create(STMT_IF_ELSE, NULL, NULL, $3, NULL, NULL, NULL, NULL); }
 	;
 
 open_stmt:
 	if_then open_stmt
+		{ ($1)->body = $2; $$ = $1; }
 	| if_then simple_stmt TOKEN_SEMICOLON
+		{ ($1)->body = $2; $$ = $1; }
 	| if_then simple_stmts
+		{ ($1)->body = $2; $$ = $1; }
 	| if_then closed_stmt TOKEN_ELSE open_stmt
+		{ ($1)->body = $2; ($1)->else_body = $4; $$ = $1; }
 	;
 
 closed_stmt:
 	simple_stmt TOKEN_SEMICOLON
-	| simple_stmts
+		{ $$ = $1; }
 	| if_then closed_stmt TOKEN_ELSE closed_stmt
+		{ ($1)->body = $2; ($1)->else_body = $4; $$ = $1; }
+	| simple_stmts
+		{ $$ = $1; }
 	;
 
 other_stmt:	
-	TOKEN_WHILE TOKEN_L_PAREN expr TOKEN_R_PAREN stmt
-	| TOKEN_FOR TOKEN_L_PAREN for_list TOKEN_R_PAREN stmt
+	TOKEN_FOR TOKEN_L_PAREN for_list TOKEN_R_PAREN stmt
+		{
+			($3)->body = $5;
+			$$ = $3;
+		}
 	;
 
 simple_stmts:
 	TOKEN_L_BRACE stmts TOKEN_R_BRACE
+		//{ $$ = $2; }
+		{ $$ = stmt_create(STMT_BLOCK, NULL, NULL, NULL, NULL, $2, NULL, NULL); }
 	;
 
 simple_stmt:
-	TOKEN_L_BRACE arg_list TOKEN_R_BRACE
-	| TOKEN_PRINT arg_list
+	TOKEN_PRINT arg_list
+		{ $$ = stmt_create(STMT_PRINT, NULL, NULL, $2, NULL, NULL, NULL, NULL); }
 	| TOKEN_PRINT
+		{ $$ = stmt_create(STMT_PRINT, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
 	| TOKEN_RETURN expr
+		{ $$ = stmt_create(STMT_RETURN, NULL, NULL, $2, NULL, NULL, NULL, NULL); }
 	| TOKEN_RETURN
+		{ $$ = stmt_create(STMT_RETURN, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
 	| expr
+		{ $$ = stmt_create(STMT_EXPR, NULL, NULL, $1, NULL, NULL, NULL, NULL); }
 	;
 
 for_list:
 	opt_expr TOKEN_SEMICOLON opt_expr TOKEN_SEMICOLON opt_expr
+		{ $$ = stmt_create(STMT_FOR, NULL, $1, $3, $5, NULL, NULL, NULL); }
 	;
 
 opt_expr:
 	expr
+		{ $$ = $1; }
 	|
+		{ $$ = expr_create(EXPR_NUL, 0, 0); }
 	;
 
 param:
 	ident TOKEN_COLON type
-		{ char * dest;
-		  strcpy(dest, ($1)->name);
-		  $$ = param_list_create(dest, $3, 0); }
+		{ $$ = param_list_create(strdup(($1)->name), $3, 0); }
 	;
 
 decl:
 	param TOKEN_SEMICOLON
 		{ $$ = decl_create(($1)->name, ($1)->type, NULL, NULL, NULL); }
 	| param TOKEN_ASSIGN closed_stmt
-		{ $$ = decl_create(NULL, NULL, NULL, NULL, NULL); }
+		{ $$  = decl_create(($1)->name, ($1)->type, ($3)->expr, ($3)->body, NULL); }
 	;
 
 type:
@@ -211,8 +234,9 @@ type:
 	
 param_list:
 	param
+		{ $$ = $1; }
 	| param TOKEN_COMMA param_list
-		{ ($1)->next = $3; }
+		{ ($1)->next = $3; $$ = $1; }
 	;
 
 expr:
@@ -234,9 +258,12 @@ expr:
 		{ $$ = expr_create(EXPR_ORR, $1, $3); }
 	| expr TOKEN_ASSIGN subexpr
 		{ $$ = expr_create(EXPR_ASN, $1, $3); }
+	| expr TOKEN_ASSIGN TOKEN_L_BRACE arg_list TOKEN_R_BRACE
+		{ $$ = expr_create(EXPR_ASN, $1, $4); }
 	| expr TOKEN_L_BRACKET expr TOKEN_R_BRACKET
 		{ $$ = expr_create(EXPR_IND, $1, $3); }
 	| subexpr
+		{ $$ = $1; }
 	;
 
 subexpr:
@@ -245,6 +272,7 @@ subexpr:
 	| subexpr TOKEN_SUBTRACT term
 		{ $$ = expr_create(EXPR_SUB, $1, $3); }
 	| term
+		{ $$ = $1; }
 	;
 
 term:
@@ -255,6 +283,7 @@ term:
 	| term TOKEN_MOD factor
 		{ $$ = expr_create(EXPR_MOD, $1, $3); }
 	| factor
+		{ $$ = $1; }
 	;
 
 factor:
@@ -265,6 +294,7 @@ factor:
 	| factor TOKEN_DECREMENT
 		{ $$ = expr_create(EXPR_DEC, $1, NULL); }
 	| atomic
+		{ $$ = $1; }
 	;
 
 atomic:
@@ -291,6 +321,7 @@ atomic:
 	| TOKEN_NOT atomic
 		{ $$ = expr_create(EXPR_NOT, NULL, $2); }
 	| ident
+		{ $$ = $1; }
 	;
 
 ident:
@@ -301,6 +332,7 @@ ident:
 arg_list:
 	expr
 	| expr TOKEN_COMMA arg_list
+		{ $$ = expr_create(EXPR_ARG, $1, $3); }
 	;
 
 %%

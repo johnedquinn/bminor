@@ -1,0 +1,8 @@
+
+for (i = 0;     i <2;   i++) {
+
+	str: string = "HOO HAA";
+	c:char = str[0];
+
+
+}

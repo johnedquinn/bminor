@@ -10,13 +10,9 @@
 struct decl * decl_create (char * name, struct type * type,
     struct expr * value, struct stmt * code,
     struct decl * next) {
-        struct decl * decl = calloc(sizeof(*decl));
+        struct decl * decl = malloc(sizeof(*decl));
         decl->name = strdup(name);
         decl->type = type;
-        if (!value)
-            decl->symbol = symbol_create(0,0,0);
-        else
-            decl->symbol = symbol_create(0,0,0);
         decl->value = value;
         decl->code = code;
         decl->next = next;
@@ -26,26 +22,28 @@ struct decl * decl_create (char * name, struct type * type,
 // @name : decl_print
 // @desc : prints a declarations information
 void decl_print (struct decl * d, int indent) {
+    if (!d) return;
     // Print indentation
     int i;
     for (i = 0; i < indent; i++) {
-        printf('\t');
+        printf("\t");
     }
 
     // Print declaration
-    printf("%s", decl->name);
-    printf(" : ");
-    type_print(decl->type); // Includes subtype
-    printf(" (");
-    param_list_print(decl->type->params);
-    printf(")");
-    
+    printf("%s", d->name);
+    printf(": ");
+    type_print(d->type); // Includes subtype
+
     // If value inside or not
-    if (value) {
+    if (d->value) {
+        printf(" = ");
+        expr_print(d->value);
+        printf(";\n");
+    } else if (d->type->kind == TYPE_FUNCTION) {
         printf(" = {\n");
-        expr_print(decl->expr); // @TODO: Figure this out
-        printf("}");
+        stmt_print(d->code, indent + 1);
+        printf("}\n");
     } else {
-        printf(";");
+        printf(";\n");
     }
 }

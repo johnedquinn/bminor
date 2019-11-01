@@ -1,0 +1,10 @@
+
+main: function integer(a:boolean,c:integer)={
+y = 5+5;
+z=2+2;
+y:integer;
+x:integer=5;
+a:integer;
+x=x-5;
+d=d++;
+}

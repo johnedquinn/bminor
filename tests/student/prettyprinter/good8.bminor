@@ -1,0 +1,7 @@
+mathTester:function integer(a:integer,b:integer)={
+a=a^(a+b);
+a++--++--++;
+b=b^20000;
+c:integer=a*a*b*b;
+return c;
+}

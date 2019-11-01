@@ -7,7 +7,10 @@
 #define PARAM_LIST_H
 
 #include "type.h"
+#include "library.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 struct expr;
 

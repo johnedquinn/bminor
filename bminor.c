@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "stmt.h"
 
 /* DEFINITIONS */
 #define ANSI_COLOR_RED     "\x1b[31m"
@@ -26,7 +27,7 @@ extern FILE *yyin;
 extern int yylex();
 extern char *yytext;
 extern int yyparse();
-extern int parser_result;
+extern struct stmt * parser_result;
 
 /* PROTOTYPES */
 char * getTokenString(token_t t);
@@ -65,6 +66,7 @@ int main (int argc, char * argv[]) {
 	if (PARSE) {
 		if (yyparse() == 0) {
 			printf("parse successful: \n");
+			stmt_print(parser_result, 0);
 			return 0;
 		} else {
 			printf("parse failed!\n");

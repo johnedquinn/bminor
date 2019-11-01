@@ -1,0 +1,8 @@
+
+random: function boolean (s: string) = {
+
+	printf("THIS IS INTERESTING");
+
+	return 5 && 2 || 3 && "YETI";
+
+}

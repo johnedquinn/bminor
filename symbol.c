@@ -1,3 +1,7 @@
+// @file   : symbol.c
+// @author : John Ed Quinn
+// @desc   : defines the symbol struct
+// @notes  : NA
 
 #include "symbol.h"
 

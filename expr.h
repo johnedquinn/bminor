@@ -31,8 +31,14 @@ typedef enum {
 	EXPR_AND,	// &&
 	EXPR_ORR,	// OR
 	EXPR_ASN,	// Assign =
-	EXPR_IND	// Index []
-	/* many more kinds of exprs to add here */
+	EXPR_IND,	// Index []
+	EXPR_ARG,	// Args list
+	EXPR_NAM,	// Name literal
+	EXPR_INT,	// Int literal
+	EXPR_BUL,	// Bool literal
+	EXPR_CHR,	// Char literal
+	EXPR_STR,	// String Literal
+	EXPR_NUL	// Null
 } expr_t;
 
 struct expr {

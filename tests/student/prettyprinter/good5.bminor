@@ -1,0 +1,7 @@
+
+main: function boolean()=     {
+
+	yeti: auto = "YETIIIIIII";
+
+	return true;
+}

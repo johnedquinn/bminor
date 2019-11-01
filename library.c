@@ -24,8 +24,7 @@ Is effectively this C code:
 x = integer_power(a,b);
 */
 
-#include <stdio.h>
-#include <stdint.h>
+#include "library.h"
 
 void print_integer( long x )
 {
@@ -55,5 +54,10 @@ long integer_power( long x, long y )
 		y = y -1;
 	}
 	return result;
+}
+
+void print_indents (int indent) {
+	int i = 0;
+	for (i; i < indent; i++) printf("\t");
 }
 

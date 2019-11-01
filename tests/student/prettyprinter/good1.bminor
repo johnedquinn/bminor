@@ -1,0 +1,4 @@
+if (true&& theWorldIsntEnding) {
+print "No need to run. There are", 0, " days left.";
+x=4;
+}

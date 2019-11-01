@@ -1,0 +1,16 @@
+main: function void()={
+
+								i = 10*10;
+			for(;;) x=5+5; y=4+4; x--; y++;
+
+			for (j = 0;j<10000;j++) {
+
+		if (true) { func(5); d++;} else {d = d + 5;}
+
+			}
+
+
+
+}
+d=5+5;
+x=2+2;
