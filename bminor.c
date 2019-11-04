@@ -41,12 +41,14 @@ int main (int argc, char * argv[]) {
 	/* Parse Arguments */
 	bool SCAN = false;
 	bool PARSE = false;
+	bool PRINT = false;
 	if (argc != 3) {
 		fprintf(stderr, ANSI_COLOR_RED "USAGE ERROR" ANSI_COLOR_RESET " -- Correct Syntax Usage: " ANSI_COLOR_CYAN "bminor -FLAG FILE\n" ANSI_COLOR_RESET);
 		exit(1);
 	}
 	if (!strcmp(argv[1], "-scan")) SCAN = true;
 	if (!strcmp(argv[1], "-parse")) PARSE = true;
+	if (!strcmp(argv[1], "-print")) PRINT = true;
 
 	/* Open file to scan */
 	yyin = fopen(argv[2],"r");
@@ -63,13 +65,13 @@ int main (int argc, char * argv[]) {
 			if (scanInfo(t) == false) exit(1);
 		}
 	}
-	if (PARSE) {
+	if (PARSE || PRINT) {
 		if (yyparse() == 0) {
-			printf("parse successful: \n");
-			stmt_print(parser_result, 0);
+			if (PARSE) printf("parse successful: \n");
+			if (PRINT) stmt_print(parser_result, 0);
 			return 0;
 		} else {
-			printf("parse failed!\n");
+			printf("Parse Failed!\n");
 			return 1;
 		}
 	}
