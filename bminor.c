@@ -69,10 +69,12 @@ int main (int argc, char * argv[]) {
 			if (scanInfo(t) == false) exit(1);
 		}
 	}
-	if (PARSE || PRINT) {
+	if (PARSE || PRINT || RESOLVE || TYPECHECK) {
 		if (yyparse() == 0) {
 			if (PARSE) printf("parse successful: \n");
 			if (PRINT) stmt_print(parser_result, 0);
+			if (RESOLVE) ;
+			if (TYPECHECK) ;
 			return 0;
 		} else {
 			printf("Parse Failed!\n");

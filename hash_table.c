@@ -7,26 +7,6 @@
 #define DEFAULT_LOAD 0.75
 #define DEFAULT_FUNC hash_string
 
-// @struct : entry
-// @desc   : N/A
-struct entry {
-	char *key;
-	void *value;
-	unsigned hash;
-	struct entry *next;
-};
-
-// @struct : hash_table
-// @desc   : N/A
-struct hash_table {
-	hash_func_t hash_func;
-	int bucket_count;
-	int size;
-	struct entry **buckets;
-	int ibucket;
-	struct entry *ientry;
-};
-
 // @name : hash_table_create
 // @desc : creates the hash_table struct
 struct hash_table * hash_table_create (int bucket_count, hash_func_t func) {
@@ -49,6 +29,7 @@ struct hash_table * hash_table_create (int bucket_count, hash_func_t func) {
 		free(h);
 		return 0;
 	}
+	h->next = NULL;
 
 	return h;
 }

@@ -200,3 +200,13 @@ void expr_print (struct expr * e) {
             break;
     } 
 }
+/*
+void expr_resolve (struct expr * e) {
+    if(!e) return;
+    if( e->kind==EXPR_NAME ) {
+        e->symbol = scope_lookup(e->name);
+    } else {
+        expr_resolve(e->left);
+        expr_resolve(e->right);
+    }
+}*/

@@ -15,3 +15,9 @@ struct symbol * symbol_create (symbol_t kind, struct type * type, char * name) {
     symbol->which = 0; // @TODO: Figure this out
     return symbol;
 }
+
+// @name: symbol_create
+// @desc: creates a symbol
+void symbol_delete () {
+
+}

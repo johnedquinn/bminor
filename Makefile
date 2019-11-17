@@ -5,7 +5,7 @@
 ##### RULES #####
 
 ## Create Program
-bminor: bminor.o scanner.o parser.o expr.o param_list.o decl.o stmt.o type.o symbol.o library.o
+bminor: bminor.o scanner.o parser.o expr.o param_list.o decl.o stmt.o type.o symbol.o hash_table.o scope.o library.o
 	gcc $^ -o $@ -lm
 
 ## Create all object files #TODO : Add -Wall flag
