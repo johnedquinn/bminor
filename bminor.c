@@ -42,6 +42,8 @@ int main (int argc, char * argv[]) {
 	bool SCAN = false;
 	bool PARSE = false;
 	bool PRINT = false;
+	bool RESOLVE = false;
+	bool TYPECHECK = false;
 	if (argc != 3) {
 		fprintf(stderr, ANSI_COLOR_RED "USAGE ERROR" ANSI_COLOR_RESET " -- Correct Syntax Usage: " ANSI_COLOR_CYAN "bminor -FLAG FILE\n" ANSI_COLOR_RESET);
 		exit(1);
@@ -49,6 +51,8 @@ int main (int argc, char * argv[]) {
 	if (!strcmp(argv[1], "-scan")) SCAN = true;
 	if (!strcmp(argv[1], "-parse")) PARSE = true;
 	if (!strcmp(argv[1], "-print")) PRINT = true;
+	if (!strcmp(argv[1], "-resolve")) RESOLVE = true;
+	if (!strcmp(argv[1], "-typecheck")) TYPECHECK = true;
 
 	/* Open file to scan */
 	yyin = fopen(argv[2],"r");

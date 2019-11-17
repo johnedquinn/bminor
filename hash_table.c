@@ -7,6 +7,8 @@
 #define DEFAULT_LOAD 0.75
 #define DEFAULT_FUNC hash_string
 
+// @struct : entry
+// @desc   : N/A
 struct entry {
 	char *key;
 	void *value;
@@ -14,6 +16,8 @@ struct entry {
 	struct entry *next;
 };
 
+// @struct : hash_table
+// @desc   : N/A
 struct hash_table {
 	hash_func_t hash_func;
 	int bucket_count;
@@ -23,8 +27,9 @@ struct hash_table {
 	struct entry *ientry;
 };
 
-struct hash_table *hash_table_create(int bucket_count, hash_func_t func)
-{
+// @name : hash_table_create
+// @desc : creates the hash_table struct
+struct hash_table * hash_table_create (int bucket_count, hash_func_t func) {
 	struct hash_table *h;
 
 	h = (struct hash_table *) malloc(sizeof(struct hash_table));
@@ -48,8 +53,9 @@ struct hash_table *hash_table_create(int bucket_count, hash_func_t func)
 	return h;
 }
 
-void hash_table_clear(struct hash_table *h)
-{
+// @name : hash_table_clear
+// @desc : clears the hash table
+void hash_table_clear (struct hash_table *h) {
 	struct entry *e, *f;
 	int i;
 
@@ -69,15 +75,17 @@ void hash_table_clear(struct hash_table *h)
 }
 
 
-void hash_table_delete(struct hash_table *h)
-{
+// @name : hash_table_delete
+// @desc : deletes the hash_table
+void hash_table_delete(struct hash_table *h) {
 	hash_table_clear(h);
 	free(h->buckets);
 	free(h);
 }
 
-void *hash_table_lookup(struct hash_table *h, const char *key)
-{
+// @name : hash_table_lookup
+// @desc : looks up a key in the hash_table
+void * hash_table_lookup (struct hash_table * h, const char * key) {
 	struct entry *e;
 	unsigned hash, index;
 
@@ -95,13 +103,15 @@ void *hash_table_lookup(struct hash_table *h, const char *key)
 	return 0;
 }
 
-int hash_table_size(struct hash_table *h)
-{
+// @name : hash_table_size
+// @desc : returns the size of the hash table
+int hash_table_size (struct hash_table * h) {
 	return h->size;
 }
 
-static int hash_table_double_buckets(struct hash_table *h)
-{
+// @name : hash_table_double_buckets
+// @desc : doubles the number of buckets
+static int hash_table_double_buckets (struct hash_table * h) {
 	struct hash_table *hn = hash_table_create(2 * h->bucket_count, h->hash_func);
 
 	if(!hn)
@@ -143,8 +153,9 @@ static int hash_table_double_buckets(struct hash_table *h)
 	return 1;
 }
 
-int hash_table_insert(struct hash_table *h, const char *key, const void *value)
-{
+// @name : hash_table_insert
+// @desc : inserts the key/value pair into hash table
+int hash_table_insert (struct hash_table * h, const char * key, const void * value) {
 	struct entry *e;
 	unsigned hash, index;
 
@@ -180,8 +191,9 @@ int hash_table_insert(struct hash_table *h, const char *key, const void *value)
 	return 1;
 }
 
-void *hash_table_remove(struct hash_table *h, const char *key)
-{
+// @name : hash_table_remove
+// @desc : removes a key/value pair from hash table
+void * hash_table_remove (struct hash_table * h, const char * key) {
 	struct entry *e, *f;
 	void *value;
 	unsigned hash, index;
@@ -211,8 +223,9 @@ void *hash_table_remove(struct hash_table *h, const char *key)
 	return 0;
 }
 
-void hash_table_firstkey(struct hash_table *h)
-{
+// @name : hash_table_firstkey
+// @desc : N/A
+void hash_table_firstkey (struct hash_table * h) {
 	h->ientry = 0;
 	for(h->ibucket = 0; h->ibucket < h->bucket_count; h->ibucket++) {
 		h->ientry = h->buckets[h->ibucket];
@@ -221,8 +234,9 @@ void hash_table_firstkey(struct hash_table *h)
 	}
 }
 
-int hash_table_nextkey(struct hash_table *h, char **key, void **value)
-{
+// @name : hash_table_nextkey
+// @desc : N/A
+int hash_table_nextkey (struct hash_table * h, char ** key, void ** value) {
 	if(h->ientry) {
 		*key = h->ientry->key;
 		*value = h->ientry->value;
