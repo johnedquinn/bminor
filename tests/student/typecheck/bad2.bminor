@@ -1,6 +1,6 @@
 
-integer x = 20;
+x:integer = 20;
 
-if (;) {
-    
+if (5^2) {
+    x++;
 }

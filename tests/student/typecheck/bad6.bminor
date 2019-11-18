@@ -4,7 +4,7 @@
     Great comments
 */
 
-i: integer = 0;
-for (i = 0; i < 5; i += 1) {
+i: int = 0;
+for (i = 0; i < 5; ;) {
     print "Man, that syntax is so close yet so far";
 }

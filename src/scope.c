@@ -77,6 +77,7 @@ void scope_bind (struct hash_table * head, const char * name, struct symbol * sy
 // @name: symbol_create
 // @desc: creates a symbol
 struct symbol * scope_lookup (struct hash_table * head, const char * name) {
+    //debug("NAME = %s", name);
     struct hash_table * current = head;
     struct symbol * sym = (struct symbol *) NULL;
     while (current && !sym) {

@@ -70,6 +70,7 @@ void decl_typecheck (struct decl * d) {
     if (d->value) {
         struct type *t;
         t = expr_typecheck(d->value);
+        if (d->symbol->type->kind == TYPE_AUTO) d->symbol->type = t;
         if (!type_equals(t,d->symbol->type)) {
             fprintf(stderr, AC_RED "type error: " AC_RESET "initializing ");
             type_t_print_err(d->symbol->type->kind);

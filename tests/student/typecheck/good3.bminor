@@ -3,5 +3,6 @@
 
 i: integer = 0;
 for (i = 0; i < 10; i++) {
-    print x, "\n";
+    //print x, "\n";
+    i++;
 }

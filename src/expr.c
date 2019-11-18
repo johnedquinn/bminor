@@ -417,7 +417,7 @@ struct type * expr_typecheck (struct expr * e) {
             result = type_create(TYPE_INTEGER,0,0);
             break;
         case EXPR_FNC:
-            result = type_create(TYPE_INTEGER,0,0);
+            result = type_create(lt->subtype->kind,0,0);
             break;
         case EXPR_PRN:
             result = type_create(lt->kind,0,0);
@@ -439,15 +439,29 @@ struct type * expr_typecheck (struct expr * e) {
         case EXPR_LEQ:
         case EXPR_GEQ:
         case EXPR_EQL:
-            result = type_create(TYPE_INTEGER,0,0);
-            break;
         case EXPR_NEQ:
             if (!type_equals(lt, rt)) {
-                fprintf(stderr, AC_RED "type error: " AC_RESET "cannot perform equality operations on (%s) with (%s)", e->left->name, e->right->name);
+                fprintf(stderr, AC_RED "type error: " AC_RESET "cannot perform comparison operations between ");
+                type_t_print_err(lt->kind);
+                fprintf(stderr, " (");
+                expr_print_err(e->left);
+                fprintf(stderr,") and ");
+                type_t_print_err(rt->kind);
+                fprintf(stderr, " (");
+                expr_print_err(e->right);
+                fprintf(stderr, ")\n");
                 NUM_TYPECHECK_ERRORS++;
             }
             if (lt->kind == TYPE_VOID || lt->kind == TYPE_ARRAY || lt->kind == TYPE_FUNCTION) {
-                fprintf(stderr, AC_RED "type error: " AC_RESET "cannot perform equality operations on (%s) with (%s)", e->left->name, e->right->name);
+                fprintf(stderr, AC_RED "type error: " AC_RESET "cannot perform comparison operations between ");
+                type_t_print_err(lt->kind);
+                fprintf(stderr, " (");
+                expr_print_err(e->left);
+                fprintf(stderr,") and ");
+                type_t_print_err(rt->kind);
+                fprintf(stderr, " (");
+                expr_print_err(e->right);
+                fprintf(stderr, ")\n");
                 NUM_TYPECHECK_ERRORS++;
             }
             result = type_create(TYPE_BOOLEAN,0,0);
@@ -470,6 +484,9 @@ struct type * expr_typecheck (struct expr * e) {
             break;
         case EXPR_ASN:
             //debug("lt->kind = %d", lt->kind);
+            if (lt->kind == TYPE_AUTO) {
+                lt->kind = rt->kind;
+            }
             if (lt->kind != rt->kind) {
                 fprintf(stderr, AC_RED "type error: " AC_RESET "cannot assign value of ");
                 type_t_print_err(rt->kind);
@@ -488,10 +505,10 @@ struct type * expr_typecheck (struct expr * e) {
             result = type_create(TYPE_INTEGER,0,0);
             break;
         case EXPR_ARG:
-            result = type_create(TYPE_INTEGER,0,0);
+            result = type_copy(lt);
             break;
         case EXPR_NAM:
-            result = type_create(e->symbol->type->kind,0,0);
+            result = type_create(e->symbol->type->kind,e->symbol->type->subtype,e->symbol->type->params);
             break;
         case EXPR_INT:
             result = type_create(TYPE_INTEGER,0,0);
