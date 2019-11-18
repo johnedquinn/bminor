@@ -1,0 +1,12 @@
+
+
+typechecker: function boolean () = {
+
+    print "Pretty great. Let's make sure types work!";
+
+    x:integer = 5 + 5;
+    y: integer = x + 2;
+    z: integer = x + y;
+    if (z == 2) return true;
+    else return false;
+}

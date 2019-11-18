@@ -1,0 +1,6 @@
+
+// No equals
+
+f: function void () {
+    print "Hello";
+}

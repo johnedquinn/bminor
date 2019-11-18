@@ -1,0 +1,8 @@
+
+//
+x: integer = 10;
+func: function integer () = {
+    //
+    y: integer = x + 5;
+    return y;
+}

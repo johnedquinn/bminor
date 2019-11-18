@@ -1,0 +1,9 @@
+
+// Now for the real code
+
+main: function integer () = {
+    x: integer = 0;
+    x++;
+    x--;
+    print x;
+}

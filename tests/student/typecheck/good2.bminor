@@ -1,0 +1,8 @@
+
+x:integer=0;
+
+func: function void () = {
+    x:bool = true;
+    print x;
+}
+if (x == 0) print x;

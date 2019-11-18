@@ -1,0 +1,10 @@
+
+
+main: function void () = {
+    {
+        x++;
+    }
+    {
+        not too bad
+    }
+}

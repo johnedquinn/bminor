@@ -1,0 +1,8 @@
+
+#include <stdlib.h>
+
+func: function void () = {
+
+    print "I wish we could include other files\n";
+
+}
