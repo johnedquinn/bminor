@@ -3,30 +3,31 @@
 # Description: NA
 
 ##### RULES #####
+OBJECTS = bin/bminor.o bin/scanner.o bin/parser.o bin/expr.o bin/param_list.o bin/decl.o bin/stmt.o bin/type.o bin/symbol.o bin/hash_table.o bin/scope.o bin/library.o
 
 ## Create Program
-bminor: bminor.o scanner.o parser.o expr.o param_list.o decl.o stmt.o type.o symbol.o hash_table.o scope.o library.o
+bminor: $(OBJECTS)
 	gcc $^ -o $@ -lm
 
 ## Create all object files #TODO : Add -Wall flag
-%.o: %.c *.h
-	gcc -c $< -o $@
+bin/%.o: src/%.c include/*.h
+	gcc -Iinclude -c $< -o $@
 
 # Create object files for library files
-%.o: %.c %.h
-	gcc -c $< -o $@
+bin/%.o: src/%.c include/%.h
+	gcc -Iinclude -c $< -o $@
 
 ## Create scanner files
-scanner.c: scanner.flex parser.h token.h
+src/scanner.c: src/scanner.flex include/parser.h include/token.h
 	flex -o $@ $<
 
 ## Create parser files
-parser.c parser.h: parser.bison token.h
-	bison --defines=parser.h --output=parser.c -v $<
+src/parser.c include/parser.h: src/parser.bison include/token.h
+	bison --defines=include/parser.h --output=src/parser.c -v $<
 
 ## Make clean
 clean:
-	rm -f  bminor parser.output parser.c parser.h scanner.c lex.yy.c *.o
+	rm -f  bminor parser.output src/parser.c include/parser.h src/scanner.c lex.yy.c bin/*.o
 
 ## Random 
 .PHONY: clean
