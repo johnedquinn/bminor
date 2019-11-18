@@ -27,7 +27,7 @@ src/parser.c include/parser.h: src/parser.bison include/token.h
 
 ## Make clean
 clean:
-	rm -f  bminor parser.output src/parser.c include/parser.h src/scanner.c lex.yy.c bin/*.o
+	rm -f  bminor src/parser.output src/parser.c include/parser.h src/scanner.c src/lex.yy.c bin/*.o
 
 ## Random 
 .PHONY: clean
