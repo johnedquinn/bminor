@@ -27,3 +27,16 @@ void param_list_print (struct param_list * p) {
         param_list_print(p->next);
     }
 }
+
+// @name : param_list_resolve
+// @desc : resolves the param_list struct
+void param_list_resolve (struct param_list * p, struct hash_table * head) {
+    if (!p) return;
+    //debug("P_LIST: %s", p->name);
+    struct decl * d = decl_create(p->name, p->type, NULL, NULL, NULL);
+    d->symbol = symbol_create(SYMBOL_PARAM, p->type, p->name);
+    scope_bind(head, d->name, d->symbol);
+    //decl_resolve(d, head);
+    //debug("P_LIST: %s", p->name);
+    param_list_resolve(p->next, head);
+}

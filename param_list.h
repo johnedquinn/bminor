@@ -8,6 +8,9 @@
 
 #include "type.h"
 #include "library.h"
+#include "hash_table.h"
+#include "decl.h"
+#include "symbol.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,7 +24,9 @@ struct param_list {
 	struct param_list *next;
 };
 
-struct param_list * param_list_create( char *name, struct type *type, struct param_list *next );
-void param_list_print( struct param_list *a );
+struct param_list * param_list_create (char * name, struct type * type, struct param_list * next);
+void param_list_print (struct param_list * a);
 
+
+void param_list_resolve (struct param_list * p, struct hash_table * head);
 #endif

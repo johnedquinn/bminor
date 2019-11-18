@@ -11,7 +11,7 @@
 #include <string.h>
 
 typedef enum {
-	SYMBOL_LOCAL,
+	SYMBOL_LOCAL=0,
 	SYMBOL_PARAM,
 	SYMBOL_GLOBAL
 } symbol_t;

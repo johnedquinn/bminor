@@ -6,21 +6,12 @@
 
 /* INCLUDES */
 #include "token.h"
-//#include "parser.h"
+#include "stmt.h"
+#include "library.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-#include "stmt.h"
-
-/* DEFINITIONS */
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
 
 /* EXTERNS */
 extern FILE *yyin;
@@ -73,7 +64,12 @@ int main (int argc, char * argv[]) {
 		if (yyparse() == 0) {
 			if (PARSE) printf("parse successful: \n");
 			if (PRINT) stmt_print(parser_result, 0);
-			if (RESOLVE) ;
+			if (RESOLVE) {
+				struct hash_table * head = NULL;
+				//scope_enter(&head);
+				stmt_resolve(parser_result, head);
+				//scope_exit(&head);
+			}
 			if (TYPECHECK) ;
 			return 0;
 		} else {

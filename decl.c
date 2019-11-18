@@ -47,18 +47,20 @@ void decl_print (struct decl * d, int indent) {
         printf(";\n");
     }
 }
-/*
-void decl_resolve (struct decl * d) {
+
+// @func : decl_resolve
+// @desc : name resolution for decls
+void decl_resolve (struct decl * d, struct hash_table * head) {
     if(!d) return;
-    symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
-    d->symbol = symbol_create(kind,d->type,d->name);
-    expr_resolve(d->value);
-    scope_bind(d->name,d->symbol);
-    if(d->code) {
-        scope_enter();
-        param_list_resolve(d->type->params);
-        stmt_resolve(d->code);
-        scope_exit();
+    symbol_t kind = scope_level(head) > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
+    d->symbol = symbol_create(kind, d->type, d->name);
+    scope_bind(head, d->name,d->symbol);
+    expr_resolve(d->value, head);
+    if (d->code) {
+        scope_enter(&head);
+        param_list_resolve(d->type->params, head);
+        stmt_resolve(d->code, head);
+        scope_exit(&head);
     }
-    decl_resolve(d->next);
-}*/
+    decl_resolve(d->next, head);
+}

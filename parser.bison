@@ -67,7 +67,7 @@ for use by scanner.c.
 };
 
 %type <decl> decl
-%type <stmt> closed_stmt simple_stmt simple_stmts stmt stmts open_stmt if_then other_stmt for_list
+%type <stmt> closed_stmt simple_stmt simple_stmts stmt stmts open_stmt if_then other_stmt for_list program
 %type <expr> atomic arg_list expr ident subexpr term factor opt_expr
 %type <type> type
 %type <param_list> param param_list
@@ -111,15 +111,17 @@ struct stmt * parser_result = 0;
 %%
 
 program:
-	stmts { parser_result = $1; return 0; }
-	| { return 0; }
+	stmts
+		{ $$ = stmt_create(STMT_BLOCK, NULL, NULL, NULL, NULL, $1, NULL, NULL); parser_result = $$; return 0; }
+	|
+		{ return 0; }
 	;
 
 stmts:
 	stmt
 		{ $$ = $1; }
-	| stmts stmt
-		{ $$ = stmt_create(STMT_BLOCK, NULL, NULL, NULL, NULL, $1, NULL, $2); }
+	| stmt stmts
+		{$1->next = $2; $$ = $1;}
 	;
 
 stmt:
@@ -168,7 +170,6 @@ other_stmt:
 
 simple_stmts:
 	TOKEN_L_BRACE stmts TOKEN_R_BRACE
-		//{ $$ = $2; }
 		{ $$ = stmt_create(STMT_BLOCK, NULL, NULL, NULL, NULL, $2, NULL, NULL); }
 	;
 

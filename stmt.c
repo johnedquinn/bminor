@@ -72,10 +72,37 @@ void stmt_print (struct stmt * s, int indent) {
 			break;
 		case STMT_BLOCK:
 			stmt_print(s->body, indent);
-			stmt_print(s->next, indent);
 			break;
 		default:
 			if (s->body) stmt_print(s->body, indent);
 			break;
 	}
+	stmt_print(s->next, indent);
+}
+
+// @name: stmt_resolve
+// @desc: name resolution for stmt
+void stmt_resolve (struct stmt * s, struct hash_table * head) {
+	if (!s) return;
+
+	// Resolve all bodies
+	decl_resolve(s->decl, head);
+	expr_resolve(s->init_expr, head);
+	expr_resolve(s->expr, head);
+	expr_resolve(s->next_expr, head);
+
+	// Check for embedded scopes
+	if (s->kind == STMT_BLOCK || s->kind == STMT_IF_ELSE) {
+		scope_enter(&head);
+		stmt_resolve(s->body, head);
+		scope_exit(&head);
+	}
+	if (s->else_body) {
+		scope_enter(&head);
+		stmt_resolve(s->else_body, head);
+		scope_exit(&head);
+	}
+
+	// Keep recursing
+	stmt_resolve(s->next, head);
 }

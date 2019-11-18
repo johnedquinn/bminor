@@ -200,13 +200,16 @@ void expr_print (struct expr * e) {
             break;
     } 
 }
-/*
-void expr_resolve (struct expr * e) {
-    if(!e) return;
-    if( e->kind==EXPR_NAME ) {
-        e->symbol = scope_lookup(e->name);
+
+// @name : expr_print
+// @desc : prints an expr's information
+void expr_resolve (struct expr * e, struct hash_table * head) {
+    if (!e) return;
+    if (e->kind == EXPR_NAM) {
+        e->symbol = scope_lookup(head, e->name);
+        if (!e->symbol) fprintf(stderr, "resolve error: %s is not defined.\n", e->name);
     } else {
-        expr_resolve(e->left);
-        expr_resolve(e->right);
+        expr_resolve(e->left, head);
+        expr_resolve(e->right, head);
     }
-}*/
+}

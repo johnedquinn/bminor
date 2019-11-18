@@ -9,7 +9,7 @@
 #include "param_list.h"
 
 typedef enum {
-	TYPE_VOID,
+	TYPE_VOID=0,
 	TYPE_BOOLEAN,
 	TYPE_CHARACTER,
 	TYPE_INTEGER,
