@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 struct expr;
 
@@ -29,4 +30,7 @@ void param_list_print (struct param_list * a);
 
 
 void param_list_resolve (struct param_list * p, struct hash_table * head);
+struct param_list * param_list_copy (struct param_list * target);
+void param_list_delete (struct param_list * p);
+bool param_list_equals (struct param_list * a, struct param_list * b);
 #endif

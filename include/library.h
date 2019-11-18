@@ -2,9 +2,13 @@
 #ifndef BMINOR_LIB_H
 #define BMINOR_LIB_H
 
+/* Includes */
+#include "type.h"
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+/* DEBUG Function */
 #ifdef NDEBUG
 #define debug(M, ...)
 #else
@@ -12,13 +16,13 @@
 #endif
 
 /* Define Error Colors */
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
+#define AC_RED     "\x1b[31m"
+#define AC_GREEN   "\x1b[32m"
+#define AC_YELLOW  "\x1b[33m"
+#define AC_BLUE    "\x1b[34m"
+#define AC_MAGENTA "\x1b[35m"
+#define AC_CYAN    "\x1b[36m"
+#define AC_RESET   "\x1b[0m"
 
 void print_integer (long x);
 void print_string (const char *s);

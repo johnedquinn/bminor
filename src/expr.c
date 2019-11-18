@@ -207,9 +207,107 @@ void expr_resolve (struct expr * e, struct hash_table * head) {
     if (!e) return;
     if (e->kind == EXPR_NAM) {
         e->symbol = scope_lookup(head, e->name);
-        if (!e->symbol) fprintf(stderr, "resolve error: %s is not defined.\n", e->name);
+        if (!e->symbol) fprintf(stderr, AC_RED "resolve error:" AC_RESET " %s is not defined.\n", e->name);
     } else {
         expr_resolve(e->left, head);
         expr_resolve(e->right, head);
     }
+}
+
+// @name : expr_typecheck
+// @desc : typecheck for expr's
+struct type * expr_typecheck (struct expr * e) {
+    if(!e) return 0;
+    struct type *lt = expr_typecheck(e->left);
+    struct type *rt = expr_typecheck(e->right);
+    struct type *result;
+    switch(e->kind) {
+        case EXPR_ADD:
+        case EXPR_SUB:
+        case EXPR_MUL:
+        case EXPR_MOD:
+        case EXPR_DIV:
+            if (lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER)
+                fprintf(stderr, AC_RED "type error: " AC_RESET "cannot perform arithmetic operations on (%s) with (%s)", e->left->name, e->right->name);
+            result = type_create(TYPE_INTEGER, 0, 0);
+        case EXPR_NOT:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_NEG:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_POS:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_FNC:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_PRN:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_POW:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_INC:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_DEC:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_LES:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_GRE:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_LEQ:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_GEQ:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_EQL:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_NEQ:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_AND:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_ORR:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_ASN:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_IND:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_ARG:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_NAM:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_INT:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_BUL:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_CHR:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        case EXPR_STR:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+        default:
+        case EXPR_NUL:
+            result = type_create(TYPE_INTEGER,0,0);
+            break;
+    }
+    type_delete(lt);
+    type_delete(rt);
+    return result;
 }

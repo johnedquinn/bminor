@@ -48,3 +48,44 @@ void type_t_print (type_t kind) {
         default: printf("unknown"); break; // @TODO: Determine error
     }
 }
+
+// @name : type_equals
+// @desc : return true if equals
+bool type_equals (struct type * a, struct type * b) {
+    if (a->kind == b->kind) {
+        if (type_is_atomic(a) && type_is_atomic(b)) {
+            return true;
+        } else if (a->kind == TYPE_ARRAY && b->kind == TYPE_ARRAY) {
+            return type_equals(a->subtype, b->subtype);
+        } else if (a->kind == TYPE_FUNCTION && b->kind == TYPE_FUNCTION) {
+            bool sub_equal = type_equals(a->subtype, b->subtype);
+            bool param_equal = param_list_equals(a->params, b->params);
+            return sub_equal && param_equal;
+        }
+    } else {
+        return false;
+    }
+}
+
+// @name : type_copy
+// @desc : returns copy of type
+struct type * type_copy (struct type * t) {
+    return type_create(t->kind, type_copy(t->subtype), param_list_copy(t->params));
+}
+
+// @name : type_delete
+// @desc : deletes type recursively
+void type_delete (struct type * t) {
+    if (!t) return;
+    param_list_delete(t->params);
+    type_delete(t->subtype);
+    free(t);
+}
+
+// @name : type_delete
+// @desc : deletes type recursively
+bool type_is_atomic (struct type * t) {
+	type_t kind = t->kind;
+	return kind == TYPE_BOOLEAN || kind == TYPE_CHARACTER
+	|| kind == TYPE_INTEGER || kind == TYPE_STRING || kind == TYPE_AUTO;
+}

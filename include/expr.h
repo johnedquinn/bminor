@@ -57,14 +57,13 @@ struct expr {
 };
 
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right );
-
 struct expr * expr_create_name( const char *n );
 struct expr * expr_create_integer_literal( int c );
 struct expr * expr_create_boolean_literal( int c );
 struct expr * expr_create_char_literal( char c );
 struct expr * expr_create_string_literal( const char *str );
-
 void expr_print( struct expr *e );
 void expr_resolve (struct expr * e, struct hash_table * head);
+struct type * expr_typecheck (struct expr * e);
 
 #endif

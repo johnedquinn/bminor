@@ -36,7 +36,7 @@ int main (int argc, char * argv[]) {
 	bool RESOLVE = false;
 	bool TYPECHECK = false;
 	if (argc != 3) {
-		fprintf(stderr, ANSI_COLOR_RED "USAGE ERROR" ANSI_COLOR_RESET " -- Correct Syntax Usage: " ANSI_COLOR_CYAN "bminor -FLAG FILE\n" ANSI_COLOR_RESET);
+		fprintf(stderr, AC_RED "USAGE ERROR" AC_RESET " -- Correct Syntax Usage: " AC_CYAN "bminor -FLAG FILE\n" AC_RESET);
 		exit(1);
 	}
 	if (!strcmp(argv[1], "-scan")) SCAN = true;

@@ -18,6 +18,16 @@ struct symbol * symbol_create (symbol_t kind, struct type * type, char * name) {
 
 // @name: symbol_create
 // @desc: creates a symbol
-void symbol_delete () {
+void symbol_delete (struct symbol * s) {
+    type_delete(s->type);
+    if (s->name) free(s->name);
+    free(s);
+}
 
+// @name: symbol_copy
+// @desc: return copy of symbol
+struct symbol * symbol_copy(struct symbol * s) {
+    struct symbol * sym = symbol_create(s->kind, type_copy(s->type), s->name);
+    sym->which = s->which;
+    return sym;
 }

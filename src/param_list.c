@@ -32,11 +32,32 @@ void param_list_print (struct param_list * p) {
 // @desc : resolves the param_list struct
 void param_list_resolve (struct param_list * p, struct hash_table * head) {
     if (!p) return;
-    //debug("P_LIST: %s", p->name);
     struct decl * d = decl_create(p->name, p->type, NULL, NULL, NULL);
     d->symbol = symbol_create(SYMBOL_PARAM, p->type, p->name);
     scope_bind(head, d->name, d->symbol);
-    //decl_resolve(d, head);
-    //debug("P_LIST: %s", p->name);
     param_list_resolve(p->next, head);
+}
+
+// @name : param_list_copy
+// @desc : returns copy of param_list
+struct param_list * param_list_copy (struct param_list * target) {
+    struct param_list * p = param_list_create(target->name, type_copy(target->type), param_list_copy(target->next));
+    p->symbol = symbol_copy(target->symbol);
+    return p;
+}
+
+void param_list_delete (struct param_list * p) {
+    if (!p) return;
+    type_delete(p->type);
+    symbol_delete(p->symbol);
+    param_list_delete(p->next);
+    free(p);
+}
+
+bool param_list_equals (struct param_list * a, struct param_list * b) {
+    if (a && !b || !a && b) return false;
+    if (!a && !b) return true;
+    bool param_equal = param_list_equals(a->next, b->next);
+    bool type_equal = type_equals(a->type, b->type);
+    return param_equal && type_equal;
 }

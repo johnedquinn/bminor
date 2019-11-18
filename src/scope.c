@@ -60,7 +60,7 @@ void scope_bind (struct hash_table * head, const char * name, struct symbol * sy
 
     // Attempt to insert
     int result = hash_table_insert(head, name, sym);
-    if (result != 1) fprintf(stderr, "Error: redeclaration of %s.\n", name);
+    if (result != 1) fprintf(stderr, AC_RED "error: " AC_RESET "redeclaration of %s.\n", name);
     
     // Print resolution message
     if (sym->kind == SYMBOL_LOCAL)
