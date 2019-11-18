@@ -106,3 +106,46 @@ void stmt_resolve (struct stmt * s, struct hash_table * head) {
 	// Keep recursing
 	stmt_resolve(s->next, head);
 }
+
+void stmt_typecheck (struct stmt * s) {
+	struct type *t;
+	if (!s) return;
+    //debug("IN TYPE CHECK: KIND = %d", s->kind);
+	switch(s->kind) {
+		case STMT_EXPR:
+			t = expr_typecheck(s->expr);
+			type_delete(t);
+			break;
+		case STMT_IF_ELSE:
+			t = expr_typecheck(s->expr);
+			if(t->kind!=TYPE_BOOLEAN) {
+				fprintf(stderr, AC_RED "type error: " AC_RESET " if statement requires boolean expression\n");
+                NUM_TYPECHECK_ERRORS++;
+			}
+			type_delete(t);
+			stmt_typecheck(s->body);
+			stmt_typecheck(s->else_body);
+			break;
+		case STMT_BLOCK:
+			stmt_typecheck(s->body);
+			break;
+		case STMT_DECL:
+			decl_typecheck(s->decl);
+			break;
+		case STMT_PRINT:
+			expr_typecheck(s->expr);
+			break;
+		case STMT_RETURN:
+			expr_typecheck(s->expr);
+			break;
+		case STMT_FOR:
+			expr_typecheck(s->init_expr);
+			expr_typecheck(s->expr);
+			expr_typecheck(s->next_expr);
+			stmt_typecheck(s->body);
+			break;
+		default:
+			break;
+	}
+	stmt_typecheck(s->next);
+}

@@ -49,6 +49,22 @@ void type_t_print (type_t kind) {
     }
 }
 
+// @name : type_t_print_err
+// @desc : prints the type_t string translation
+void type_t_print_err (type_t kind) {
+    switch (kind) {
+        case 0: fprintf(stderr, "void"); break;
+        case 1: fprintf(stderr, "boolean"); break;
+        case 2: fprintf(stderr, "char"); break;
+        case 3: fprintf(stderr, "integer"); break;
+        case 4: fprintf(stderr, "string"); break;
+        case 5: fprintf(stderr, "array"); break;
+        case 6: fprintf(stderr, "function"); break;
+        case 7: fprintf(stderr, "auto"); break;
+        default: fprintf(stderr, "unknown"); break;
+    }
+}
+
 // @name : type_equals
 // @desc : return true if equals
 bool type_equals (struct type * a, struct type * b) {

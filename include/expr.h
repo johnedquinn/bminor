@@ -10,6 +10,9 @@
 #include "scope.h"
 #include "hash_table.h"
 
+extern int NUM_RESOLVE_ERRORS;
+extern int NUM_TYPECHECK_ERRORS;
+
 typedef enum {
 	EXPR_ADD,	// +
 	EXPR_SUB,	// -

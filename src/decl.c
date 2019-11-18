@@ -64,3 +64,26 @@ void decl_resolve (struct decl * d, struct hash_table * head) {
     }
     decl_resolve(d->next, head);
 }
+
+void decl_typecheck (struct decl * d) {
+    if (!d) return;
+    if (d->value) {
+        struct type *t;
+        t = expr_typecheck(d->value);
+        if (!type_equals(t,d->symbol->type)) {
+            fprintf(stderr, AC_RED "type error: " AC_RESET "initializing ");
+            type_t_print_err(d->symbol->type->kind);
+            fprintf(stderr, " (");
+            fprintf(stderr, "%s", d->symbol->name);
+            fprintf(stderr, ") as ");
+            type_t_print_err(t->kind);
+            fprintf(stderr, " (");
+            expr_print_err(d->value);
+            fprintf(stderr, ") is not possible\n");
+            NUM_TYPECHECK_ERRORS++;
+        }
+    }
+    if(d->code) {
+        stmt_typecheck(d->code);
+    }
+}

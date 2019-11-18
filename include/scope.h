@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern int NUM_RESOLVE_ERRORS;
+
 void scope_enter (struct hash_table ** head);
 void scope_exit (struct hash_table ** head);
 int scope_level (struct hash_table * head);

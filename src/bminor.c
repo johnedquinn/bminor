@@ -13,6 +13,12 @@
 #include <string.h>
 #include <stdlib.h>
 
+/* GLOBALS */
+int NUM_SCAN_ERRORS = 0;
+int NUM_PARSE_ERRORS = 0;
+int NUM_RESOLVE_ERRORS = 0;
+int NUM_TYPECHECK_ERRORS = 0;
+
 /* EXTERNS */
 extern FILE *yyin;
 extern int yylex();
@@ -62,13 +68,27 @@ int main (int argc, char * argv[]) {
 	}
 	if (PARSE || PRINT || RESOLVE || TYPECHECK) {
 		if (yyparse() == 0) {
-			if (PARSE) printf("parse successful: \n");
-			if (PRINT) stmt_print(parser_result, 0);
-			if (RESOLVE) {
+			if (PARSE) {
+				printf("parse successful: \n");
+			}
+			if (PRINT) {
+				stmt_print(parser_result, 0);
+			}
+			if (RESOLVE || TYPECHECK) {
 				struct hash_table * head = NULL;
 				stmt_resolve(parser_result, head);
+				if (NUM_RESOLVE_ERRORS) {
+					fprintf(stderr, AC_CYAN "=======> " AC_RED "name resolution failed: " AC_RESET "%d resolution errors\n", NUM_RESOLVE_ERRORS);
+					return 1;
+				}
 			}
-			if (TYPECHECK) ;
+			if (TYPECHECK) {
+				stmt_typecheck(parser_result);
+				if (NUM_TYPECHECK_ERRORS) {
+					fprintf(stderr, AC_CYAN "=======> " AC_RED "typechecking failed: " AC_RESET "%d typechecking errors\n", NUM_TYPECHECK_ERRORS);
+					return 1;
+				}
+			}
 			return 0;
 		} else {
 			printf("Parse Failed!\n");

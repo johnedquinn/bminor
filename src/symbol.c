@@ -12,13 +12,14 @@ struct symbol * symbol_create (symbol_t kind, struct type * type, char * name) {
     symbol->kind = kind;
     symbol->type = type;
     symbol->name = strdup(name);
-    symbol->which = 0; // @TODO: Figure this out
+    symbol->which = 0;
     return symbol;
 }
 
 // @name: symbol_create
 // @desc: creates a symbol
 void symbol_delete (struct symbol * s) {
+    if (!s) return;
     type_delete(s->type);
     if (s->name) free(s->name);
     free(s);

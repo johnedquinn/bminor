@@ -48,7 +48,7 @@ struct param_list * param_list_copy (struct param_list * target) {
 
 void param_list_delete (struct param_list * p) {
     if (!p) return;
-    type_delete(p->type);
+    //type_delete(p->type);
     symbol_delete(p->symbol);
     param_list_delete(p->next);
     free(p);

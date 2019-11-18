@@ -25,8 +25,10 @@
 #define AC_RESET   "\x1b[0m"
 
 void print_integer (long x);
+void print_integer_err (long x);
 void print_string (const char *s);
 void print_boolean (int b);
+void print_boolean_err (int b);
 void print_character (char c);
 long integer_power (long x, long y);
 void print_indents (int indent);
