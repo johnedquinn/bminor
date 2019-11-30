@@ -81,20 +81,23 @@ bool type_equals (struct type * a, struct type * b) {
     } else {
         return false;
     }
+    return true;
 }
 
 // @name : type_copy
 // @desc : returns copy of type
 struct type * type_copy (struct type * t) {
+    if (!t) return NULL;
     return type_create(t->kind, type_copy(t->subtype), param_list_copy(t->params));
 }
 
 // @name : type_delete
 // @desc : deletes type recursively
 void type_delete (struct type * t) {
-    if (!t) return;
+    if (!t || t->kind > 7) return;
     param_list_delete(t->params);
     type_delete(t->subtype);
+    if (!t) return;
     free(t);
 }
 

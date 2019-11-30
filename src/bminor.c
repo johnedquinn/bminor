@@ -83,7 +83,7 @@ int main (int argc, char * argv[]) {
 				}
 			}
 			if (TYPECHECK) {
-				stmt_typecheck(parser_result);
+				stmt_typecheck(parser_result, NULL);
 				if (NUM_TYPECHECK_ERRORS) {
 					fprintf(stderr, AC_CYAN "=======> " AC_RED "typechecking failed: " AC_RESET "%d typechecking errors\n", NUM_TYPECHECK_ERRORS);
 					return 1;

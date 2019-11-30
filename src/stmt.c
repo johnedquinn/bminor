@@ -92,7 +92,7 @@ void stmt_resolve (struct stmt * s, struct hash_table * head) {
 	expr_resolve(s->next_expr, head);
 
 	// Check for embedded scopes
-	if (s->kind == STMT_BLOCK || s->kind == STMT_IF_ELSE) {
+	if (s->kind == STMT_BLOCK || s->kind == STMT_IF_ELSE || s->kind == STMT_FOR) {
 		scope_enter(&head);
 		stmt_resolve(s->body, head);
 		scope_exit(&head);
@@ -107,10 +107,11 @@ void stmt_resolve (struct stmt * s, struct hash_table * head) {
 	stmt_resolve(s->next, head);
 }
 
-void stmt_typecheck (struct stmt * s) {
+// @name: stmt_typecheck
+// @desc: typecheck for statements
+void stmt_typecheck (struct stmt * s, struct decl * d) {
 	struct type *t;
 	if (!s) return;
-    //debug("IN TYPE CHECK: KIND = %d", s->kind);
 	switch(s->kind) {
 		case STMT_EXPR:
 			t = expr_typecheck(s->expr);
@@ -123,11 +124,11 @@ void stmt_typecheck (struct stmt * s) {
                 NUM_TYPECHECK_ERRORS++;
 			}
 			type_delete(t);
-			stmt_typecheck(s->body);
-			stmt_typecheck(s->else_body);
+			stmt_typecheck(s->body, d);
+			stmt_typecheck(s->else_body, d);
 			break;
 		case STMT_BLOCK:
-			stmt_typecheck(s->body);
+			stmt_typecheck(s->body, d);
 			break;
 		case STMT_DECL:
 			decl_typecheck(s->decl);
@@ -136,16 +137,45 @@ void stmt_typecheck (struct stmt * s) {
 			expr_typecheck(s->expr);
 			break;
 		case STMT_RETURN:
-			expr_typecheck(s->expr);
+			// Grab expression return type
+			if (s->expr) t = expr_typecheck(s->expr);
+			else t = type_create(TYPE_VOID, NULL, NULL);
+
+			// Make sure inside function scope
+			if (!d) {
+                fprintf(stderr, AC_RED "type error: " AC_RESET " cannot return outside of function.\n", s->expr->name);
+				NUM_TYPECHECK_ERRORS++;
+				break;
+			}
+
+			// Update auto function
+			if (d->symbol->type->subtype->kind == TYPE_AUTO) {
+				d->symbol->type->subtype = t;
+			}
+
+			// Make sure to not return auto
+			if (t->kind == TYPE_AUTO && d->symbol->type->subtype->kind == TYPE_AUTO) {
+                fprintf(stderr, AC_RED "type error: " AC_RESET "cannot infer type of %s\n", s->expr->name);
+			}
+
+			// Check return type of function with type of return expression
+			if (!type_equals(t, d->symbol->type->subtype)) {
+                fprintf(stderr, AC_RED "type error: " AC_RESET "cannot return type ");
+                type_t_print_err(t->kind);
+                fprintf(stderr, " in function of return type ");
+                type_t_print_err(d->symbol->type->subtype->kind);
+                fprintf(stderr, ".\n");
+				NUM_TYPECHECK_ERRORS++;
+			}
 			break;
 		case STMT_FOR:
 			expr_typecheck(s->init_expr);
 			expr_typecheck(s->expr);
 			expr_typecheck(s->next_expr);
-			stmt_typecheck(s->body);
+			stmt_typecheck(s->body, d);
 			break;
 		default:
 			break;
 	}
-	stmt_typecheck(s->next);
+	stmt_typecheck(s->next, d);
 }

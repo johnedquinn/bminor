@@ -65,10 +65,12 @@ void decl_resolve (struct decl * d, struct hash_table * head) {
     decl_resolve(d->next, head);
 }
 
+// @func : decl_typecheck
+// @desc : typechecking for decls
 void decl_typecheck (struct decl * d) {
     if (!d) return;
+    struct type *t;
     if (d->value) {
-        struct type *t;
         t = expr_typecheck(d->value);
         if (d->symbol->type->kind == TYPE_AUTO) d->symbol->type = t;
         if (!type_equals(t,d->symbol->type)) {
@@ -84,7 +86,8 @@ void decl_typecheck (struct decl * d) {
             NUM_TYPECHECK_ERRORS++;
         }
     }
-    if(d->code) {
-        stmt_typecheck(d->code);
+    // Check function return types
+    if (d->code) {
+        stmt_typecheck(d->code, d);
     }
 }

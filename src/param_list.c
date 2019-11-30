@@ -41,17 +41,35 @@ void param_list_resolve (struct param_list * p, struct hash_table * head) {
 // @name : param_list_copy
 // @desc : returns copy of param_list
 struct param_list * param_list_copy (struct param_list * target) {
+    if (!target) return NULL;
     struct param_list * p = param_list_create(target->name, type_copy(target->type), param_list_copy(target->next));
     p->symbol = symbol_copy(target->symbol);
     return p;
 }
 
+// @name : param_list_typecheck
+// @desc : typechecks the param_list
+bool param_list_typecheck (struct param_list * target, struct param_list * baseline) {
+    // Make sure param_list lengths are the same
+    if (!target && baseline || target && !baseline) return false;
+
+    // Reached end of param_list
+    if (!target && !baseline) return true;
+
+    // Recursively go down parameter list
+    if (target->type->kind == baseline->type->kind) {
+        return param_list_typecheck(target->next, baseline->next);
+    } else {
+        return false;
+    }
+}
+
 void param_list_delete (struct param_list * p) {
     if (!p) return;
-    //type_delete(p->type);
+    type_delete(p->type);
     symbol_delete(p->symbol);
     param_list_delete(p->next);
-    free(p);
+    if (!p) free(p);
 }
 
 bool param_list_equals (struct param_list * a, struct param_list * b) {

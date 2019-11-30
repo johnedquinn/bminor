@@ -483,7 +483,6 @@ struct type * expr_typecheck (struct expr * e) {
             result = type_create(TYPE_BOOLEAN,0,0);
             break;
         case EXPR_ASN:
-            //debug("lt->kind = %d", lt->kind);
             if (lt->kind == TYPE_AUTO) {
                 lt->kind = rt->kind;
             }
@@ -527,7 +526,5 @@ struct type * expr_typecheck (struct expr * e) {
             result = type_create(TYPE_VOID,0,0);
             break;
     }
-    type_delete(lt);
-    type_delete(rt);
     return result;
 }

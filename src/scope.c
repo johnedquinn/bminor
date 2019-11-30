@@ -74,10 +74,9 @@ void scope_bind (struct hash_table * head, const char * name, struct symbol * sy
         fprintf(stdout, "%s resolves to param %d\n", sym->name, sym->which);
 }
 
-// @name: symbol_create
-// @desc: creates a symbol
+// @name: scope_lookup
+// @desc: searches the entire stack for a variable
 struct symbol * scope_lookup (struct hash_table * head, const char * name) {
-    //debug("NAME = %s", name);
     struct hash_table * current = head;
     struct symbol * sym = (struct symbol *) NULL;
     while (current && !sym) {
@@ -87,8 +86,8 @@ struct symbol * scope_lookup (struct hash_table * head, const char * name) {
     return sym;
 }
 
-// @name: symbol_create
-// @desc: creates a symbol
+// @name: scope_lookup_current
+// @desc: searches the top of the stack for a variable
 struct symbol * scope_lookup_current (struct hash_table * head, const char * name) {
     struct symbol * sym = hash_table_lookup(head, name);
     return sym;
