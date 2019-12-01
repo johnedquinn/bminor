@@ -394,7 +394,7 @@ struct type * expr_typecheck (struct expr * e) {
             result = type_create(TYPE_INTEGER, 0, 0);
             break;
         case EXPR_NOT:
-            if (lt->kind != TYPE_BOOLEAN) {
+            if (rt->kind != TYPE_BOOLEAN) {
                 fprintf(stderr, AC_RED "type error: " AC_RESET "cannot perform boolean operations on ");
                 type_t_print_err(lt->kind);
                 fprintf(stderr, " (");
@@ -406,7 +406,7 @@ struct type * expr_typecheck (struct expr * e) {
             break;
         case EXPR_NEG:
         case EXPR_POS:
-            if (lt->kind != TYPE_INTEGER) {
+            if (rt->kind != TYPE_INTEGER) {
                 fprintf(stderr, AC_RED "type error: " AC_RESET "cannot perform unary operations on ");
                 type_t_print_err(lt->kind);
                 fprintf(stderr, " (");
