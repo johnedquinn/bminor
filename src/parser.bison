@@ -208,13 +208,15 @@ decl:
 		{ $$ = decl_create(($1)->name, ($1)->type, NULL, NULL, NULL); }
 	| param TOKEN_ASSIGN closed_stmt
 		{ $$  = decl_create(($1)->name, ($1)->type, ($3)->expr, ($3)->body, NULL); }
+	| param TOKEN_ASSIGN TOKEN_L_BRACE arg_list TOKEN_R_BRACE TOKEN_SEMICOLON
+		{ $$ = decl_create(($1)->name, ($1)->type, $4, NULL, NULL); }
 	;
 
 type:
 	TOKEN_TYPE_ARRAY TOKEN_L_BRACKET TOKEN_R_BRACKET type
 		{ $$ = type_create(TYPE_ARRAY, $4, NULL); }
-	| TOKEN_TYPE_ARRAY TOKEN_L_BRACKET TOKEN_NUMBER TOKEN_R_BRACKET type
-		{ $$ = type_create(TYPE_ARRAY, $5, NULL); }
+	| TOKEN_TYPE_ARRAY TOKEN_L_BRACKET expr TOKEN_R_BRACKET type
+		{ $$ = type_create(TYPE_ARRAY, $5, NULL); ($$)->index = $3; }
 	| TOKEN_TYPE_AUTO
 		{ $$ = type_create(TYPE_AUTO, NULL, NULL); }
 	| TOKEN_TYPE_BOOLEAN

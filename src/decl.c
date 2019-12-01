@@ -72,7 +72,27 @@ void decl_typecheck (struct decl * d) {
     struct type *t;
     if (d->value) {
         t = expr_typecheck(d->value);
+        // Check Auto
         if (d->symbol->type->kind == TYPE_AUTO) d->symbol->type = t;
+        // Check Array
+        if (d->symbol->type->kind == TYPE_ARRAY) {
+            struct expr * temp = d->value;
+            while (temp) {
+                struct type * type_temp = expr_typecheck(temp);
+                if (type_temp->kind != d->symbol->type->subtype->kind) {
+                    fprintf(stderr, AC_RED "type error: " AC_RESET "cannot initialize array of type ");
+                    type_t_print_err(d->symbol->type->subtype->kind);
+                    fprintf(stderr, " with values of type ");
+                    type_t_print_err(t->kind);
+                    fprintf(stderr, ".\n");
+                    NUM_TYPECHECK_ERRORS++;
+                    break;
+                }
+                temp = temp->right;
+            }
+            return;
+        }
+        // Check initialization
         if (!type_equals(t,d->symbol->type)) {
             fprintf(stderr, AC_RED "type error: " AC_RESET "initializing ");
             type_t_print_err(d->symbol->type->kind);

@@ -501,7 +501,15 @@ struct type * expr_typecheck (struct expr * e) {
             result = type_create(lt->kind,0,0);
             break;
         case EXPR_IND:
-            result = type_create(TYPE_INTEGER,0,0);
+            if (lt->kind != TYPE_ARRAY) {
+                fprintf(stderr, AC_RED "type error: " AC_RESET "cannot index non-array.\n");
+                NUM_TYPECHECK_ERRORS++;
+            }
+            if (rt->kind != TYPE_INTEGER) {
+                fprintf(stderr, AC_RED "type error: " AC_RESET "cannot index array with non-integer.\n");
+                NUM_TYPECHECK_ERRORS++;
+            }
+            result = type_create(lt->subtype->kind,0,0);
             break;
         case EXPR_ARG:
             result = type_copy(lt);

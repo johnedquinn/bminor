@@ -24,6 +24,7 @@ struct type {
 	type_t kind;
 	struct param_list *params;
 	struct type *subtype;
+	struct expr * index;
 };
 
 struct type * type_create( type_t kind, struct type *subtype, struct param_list *params );
