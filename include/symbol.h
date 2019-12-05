@@ -8,6 +8,7 @@
 
 #include "type.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 typedef enum {
@@ -24,7 +25,8 @@ struct symbol {
 };
 
 struct symbol * symbol_create( symbol_t kind, struct type *type, char *name );
-struct symbol * symbol_copy(struct symbol * s);
+struct symbol * symbol_copy (struct symbol * s);
+const char * symbol_codegen (struct symbol * s);
 
 
 #endif

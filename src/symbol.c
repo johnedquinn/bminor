@@ -32,3 +32,17 @@ struct symbol * symbol_copy(struct symbol * s) {
     sym->which = s->which;
     return sym;
 }
+
+// @name: symbol_copy
+// @desc: return copy of symbol
+// @TODO: check if param stuff needed
+const char * symbol_codegen (struct symbol * s) {
+    // Global variables
+    if (s->kind == SYMBOL_GLOBAL) return s->name;
+
+    // Local variables
+    int offset = 8 + s->which * 8;
+    char * position;
+    sprintf(position, "-%d(\%rbp)", offset);
+    return position;
+}

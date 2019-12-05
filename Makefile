@@ -3,7 +3,7 @@
 # Description: NA
 
 ##### RULES #####
-OBJECTS = bin/bminor.o bin/scanner.o bin/parser.o bin/expr.o bin/param_list.o bin/decl.o bin/stmt.o bin/type.o bin/symbol.o bin/hash_table.o bin/scope.o bin/library.o
+OBJECTS = bin/bminor.o bin/scanner.o bin/parser.o bin/expr.o bin/param_list.o bin/decl.o bin/stmt.o bin/type.o bin/symbol.o bin/hash_table.o bin/scope.o bin/library.o bin/scratch.o
 
 ## Create Program
 bminor: $(OBJECTS)

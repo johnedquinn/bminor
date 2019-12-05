@@ -179,3 +179,69 @@ void stmt_typecheck (struct stmt * s, struct decl * d) {
 	}
 	stmt_typecheck(s->next, d);
 }
+
+// @name: stmt_codegen
+// @desc: generate code for statements
+void stmt_codegen (struct stmt * s, int scratch_table [], FILE * stream) {
+	if (!s) return;
+	switch(s->kind) {
+		case STMT_EXPR:
+			expr_codegen(s->expr, scratch_table, stream);
+			break;
+		case STMT_IF_ELSE:
+			expr_codegen(s->expr, scratch_table, stream);
+			stmt_codegen(s->body, scratch_table, stream);
+			stmt_codegen(s->else_body, scratch_table, stream);
+			break;
+		case STMT_BLOCK:
+			stmt_codegen(s->body, scratch_table, stream);
+			break;
+		case STMT_DECL:
+			decl_codegen(s->decl, scratch_table, stream);
+			break;
+		case STMT_PRINT:
+			//expr_codegen(s->expr, scratch_table, stream);
+			break;
+		case STMT_RETURN:
+			/*// Grab expression return type
+			if (s->expr) t = expr_typecheck(s->expr);
+			else t = type_create(TYPE_VOID, NULL, NULL);
+
+			// Make sure inside function scope
+			if (!d) {
+                fprintf(stderr, AC_RED "type error: " AC_RESET " cannot return outside of function.\n", s->expr->name);
+				NUM_TYPECHECK_ERRORS++;
+				break;
+			}
+
+			// Update auto function
+			if (d->symbol->type->subtype->kind == TYPE_AUTO) {
+				d->symbol->type->subtype = t;
+			}
+
+			// Make sure to not return auto
+			if (t->kind == TYPE_AUTO && d->symbol->type->subtype->kind == TYPE_AUTO) {
+                fprintf(stderr, AC_RED "type error: " AC_RESET "cannot infer type of %s\n", s->expr->name);
+			}
+
+			// Check return type of function with type of return expression
+			if (!type_equals(t, d->symbol->type->subtype)) {
+                fprintf(stderr, AC_RED "type error: " AC_RESET "cannot return type ");
+                type_t_print_err(t->kind);
+                fprintf(stderr, " in function of return type ");
+                type_t_print_err(d->symbol->type->subtype->kind);
+                fprintf(stderr, ".\n");
+				NUM_TYPECHECK_ERRORS++;
+			}*/
+			break;
+		case STMT_FOR:
+			/*expr_typecheck(s->init_expr);
+			expr_typecheck(s->expr);
+			expr_typecheck(s->next_expr);
+			stmt_typecheck(s->body, d);*/
+			break;
+		default:
+			break;
+	}
+	stmt_codegen(s->next, scratch_table, stream);
+}

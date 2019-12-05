@@ -111,3 +111,7 @@ void decl_typecheck (struct decl * d) {
         stmt_typecheck(d->code, d);
     }
 }
+
+void decl_codegen(struct decl * d, int scratch_table [], FILE * stream) {
+
+}

@@ -9,6 +9,7 @@
 #include "symbol.h"
 #include "scope.h"
 #include "hash_table.h"
+#include "scratch.h"
 
 extern int NUM_RESOLVE_ERRORS;
 extern int NUM_TYPECHECK_ERRORS;
@@ -57,6 +58,7 @@ struct expr {
 	int literal_value;
 	const char * string_literal;
 	struct symbol *symbol;
+	int reg;
 };
 
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right );
@@ -68,5 +70,6 @@ struct expr * expr_create_string_literal( const char *str );
 void expr_print( struct expr *e );
 void expr_resolve (struct expr * e, struct hash_table * head);
 struct type * expr_typecheck (struct expr * e);
+void expr_codegen (struct expr * e, int scratch_table [], FILE * stream);
 
 #endif

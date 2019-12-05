@@ -18,6 +18,7 @@ int NUM_SCAN_ERRORS = 0;
 int NUM_PARSE_ERRORS = 0;
 int NUM_RESOLVE_ERRORS = 0;
 int NUM_TYPECHECK_ERRORS = 0;
+unsigned int COUNTER = 0;
 
 /* EXTERNS */
 extern FILE *yyin;
@@ -41,15 +42,23 @@ int main (int argc, char * argv[]) {
 	bool PRINT = false;
 	bool RESOLVE = false;
 	bool TYPECHECK = false;
-	if (argc != 3) {
+	bool CODEGEN = false;
+	char * FILE_NAME = "a.out.s";
+
+	if (argc < 3) {
 		fprintf(stderr, AC_RED "USAGE ERROR" AC_RESET " -- Correct Syntax Usage: " AC_CYAN "bminor -FLAG FILE\n" AC_RESET);
 		exit(1);
 	}
+
 	if (!strcmp(argv[1], "-scan")) SCAN = true;
 	if (!strcmp(argv[1], "-parse")) PARSE = true;
 	if (!strcmp(argv[1], "-print")) PRINT = true;
 	if (!strcmp(argv[1], "-resolve")) RESOLVE = true;
 	if (!strcmp(argv[1], "-typecheck")) TYPECHECK = true;
+	if (!strcmp(argv[1], "-codegen")) {
+		if (argc == 4) FILE_NAME = argv[3];
+		CODEGEN = true;
+	}
 
 	/* Open file to scan */
 	yyin = fopen(argv[2],"r");
@@ -66,7 +75,7 @@ int main (int argc, char * argv[]) {
 			if (scanInfo(t) == false) exit(1);
 		}
 	}
-	if (PARSE || PRINT || RESOLVE || TYPECHECK) {
+	if (PARSE || PRINT || RESOLVE || TYPECHECK || CODEGEN) {
 		if (yyparse() == 0) {
 			if (PARSE) {
 				printf("parse successful: \n");
@@ -74,7 +83,7 @@ int main (int argc, char * argv[]) {
 			if (PRINT) {
 				stmt_print(parser_result, 0);
 			}
-			if (RESOLVE || TYPECHECK) {
+			if (RESOLVE || TYPECHECK || CODEGEN) {
 				struct hash_table * head = NULL;
 				stmt_resolve(parser_result, head);
 				if (NUM_RESOLVE_ERRORS) {
@@ -82,12 +91,22 @@ int main (int argc, char * argv[]) {
 					return 1;
 				}
 			}
-			if (TYPECHECK) {
+			if (TYPECHECK || CODEGEN) {
 				stmt_typecheck(parser_result, NULL);
 				if (NUM_TYPECHECK_ERRORS) {
 					fprintf(stderr, AC_CYAN "=======> " AC_RED "typechecking failed: " AC_RESET "%d typechecking errors\n", NUM_TYPECHECK_ERRORS);
 					return 1;
 				}
+			}
+			if (CODEGEN) {
+				int scratch_table [6] = {0};
+				FILE * OUTPUT_FILE = fopen(FILE_NAME, "w");
+				if (!OUTPUT_FILE) {
+					fprintf(stderr, "Could not write to %s.\n", FILE_NAME);
+					return 1;
+				}
+				stmt_codegen(parser_result, scratch_table, OUTPUT_FILE);
+				fclose(OUTPUT_FILE);
 			}
 			return 0;
 		} else {

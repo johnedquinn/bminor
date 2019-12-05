@@ -536,3 +536,82 @@ struct type * expr_typecheck (struct expr * e) {
     }
     return result;
 }
+
+void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
+    if (!e) return;
+    switch (e->kind) {
+        case EXPR_ADD:
+            expr_codegen(e->left, scratch_table, stream);
+            expr_codegen(e->right, scratch_table, stream);
+            fprintf(stream, "addq %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(scratch_table, e->left->reg);
+            break;
+        case EXPR_SUB:
+            expr_codegen(e->left, scratch_table, stream);
+            expr_codegen(e->right, scratch_table, stream);
+            fprintf(stream, "subq %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(scratch_table, e->left->reg);
+            break;
+        case EXPR_MUL:
+            expr_codegen(e->left, scratch_table, stream);
+            expr_codegen(e->right, scratch_table, stream);
+            fprintf(stream, "mulq %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(scratch_table, e->left->reg);
+            break;
+        case EXPR_POW:
+        case EXPR_MOD:
+        case EXPR_DIV:
+        case EXPR_NOT:
+        case EXPR_NEG:
+        case EXPR_POS:
+        case EXPR_FNC:
+            break;
+        case EXPR_PRN:
+            expr_codegen(e->left, scratch_table, stream);
+            e->reg = e->left->reg;
+            break;
+        case EXPR_INC:
+            expr_codegen(e->left, scratch_table, stream);
+            fprintf(stream, "addq $1, %s\n", scratch_name(e->left->reg));
+            e->reg = e->left->reg;
+            break;
+        case EXPR_DEC:
+            expr_codegen(e->left, scratch_table, stream);
+            fprintf(stream, "subq $1, %s\n", scratch_name(e->left->reg));
+            e->reg = e->left->reg;
+            break;
+        case EXPR_LES:
+        case EXPR_GRE:
+        case EXPR_LEQ:
+        case EXPR_GEQ:
+        case EXPR_EQL:
+        case EXPR_NEQ:
+        case EXPR_AND:
+        case EXPR_ORR:
+            break;
+        case EXPR_ASN:
+            expr_codegen(e->left, scratch_table, stream);
+            expr_codegen(e->right, scratch_table, stream);
+            fprintf(stream, "movq %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg));
+            e->reg = e->left->reg;
+            scratch_free(scratch_table, e->right->reg);
+            break;
+        case EXPR_IND:
+        case EXPR_ARG:
+        case EXPR_NAM:
+            break;
+        case EXPR_INT:
+        case EXPR_BUL:
+        case EXPR_CHR:
+            e->reg = scratch_alloc(scratch_table);
+            fprintf(stream, "movq $%d, %s\n", e->literal_value, scratch_name(e->reg));
+            break;
+        case EXPR_STR:
+        case EXPR_NUL:
+        default:
+            break;
+    }
+}

@@ -30,6 +30,7 @@ struct decl * decl_create( char *name, struct type *type, struct expr *value, st
 void decl_print( struct decl *d, int indent );
 void decl_resolve (struct decl * d, struct hash_table * head);
 void decl_typecheck (struct decl * d);
+void decl_codegen(struct decl * d, int scratch_table [], FILE * stream);
 
 #endif
 
