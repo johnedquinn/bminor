@@ -68,7 +68,7 @@ for use by scanner.c.
 
 %type <decl> decl
 %type <stmt> closed_stmt simple_stmt simple_stmts stmt stmts open_stmt if_then other_stmt for_list program
-%type <expr> atomic arg_list expr ident subexpr term factor opt_expr
+%type <expr> atomic arg_list expr ident term factor opt_expr group postfix unary math comparison logical_and logical_or
 %type <type> type
 %type <param_list> param param_list
 
@@ -243,36 +243,51 @@ param_list:
 	;
 
 expr:
-	expr TOKEN_LESS subexpr
-		{ $$ = expr_create(EXPR_LES, $1, $3); }
-	| expr TOKEN_GREATER subexpr
-		{ $$ = expr_create(EXPR_GRE, $1, $3); }
-	| expr TOKEN_LESS_EQUAL subexpr
-		{ $$ = expr_create(EXPR_LEQ, $1, $3); }
-	| expr TOKEN_GREATER_EQUAL subexpr
-		{ $$ = expr_create(EXPR_GEQ, $1, $3); }
-	| expr TOKEN_EQUAL subexpr
-		{ $$ = expr_create(EXPR_EQL, $1, $3); }
-	| expr TOKEN_NOT_EQUAL subexpr
-		{ $$ = expr_create(EXPR_NEQ, $1, $3); }
-	| expr TOKEN_AND subexpr
-		{ $$ = expr_create(EXPR_AND, $1, $3); }
-	| expr TOKEN_OR subexpr
-		{ $$ = expr_create(EXPR_ORR, $1, $3); }
-	| expr TOKEN_ASSIGN subexpr
+	expr TOKEN_ASSIGN logical_or
 		{ $$ = expr_create(EXPR_ASN, $1, $3); }
 	| expr TOKEN_ASSIGN TOKEN_L_BRACE arg_list TOKEN_R_BRACE
 		{ $$ = expr_create(EXPR_ASN, $1, $4); }
 	| expr TOKEN_L_BRACKET expr TOKEN_R_BRACKET
 		{ $$ = expr_create(EXPR_IND, $1, $3); }
-	| subexpr
+	| logical_or
 		{ $$ = $1; }
 	;
 
-subexpr:
-	subexpr TOKEN_ADD term
+logical_or:
+	logical_or TOKEN_OR logical_and
+		{ $$ = expr_create(EXPR_ORR, $1, $3); }
+	| logical_and
+		{ $$ = $1; }
+	;
+
+logical_and:
+	logical_and TOKEN_AND comparison
+		{ $$ = expr_create(EXPR_AND, $1, $3); }
+	| comparison
+		{ $$ = $1; }
+	;
+
+comparison:
+	comparison TOKEN_LESS math
+		{ $$ = expr_create(EXPR_LES, $1, $3); }
+	| comparison TOKEN_GREATER math
+		{ $$ = expr_create(EXPR_GRE, $1, $3); }
+	| comparison TOKEN_LESS_EQUAL math
+		{ $$ = expr_create(EXPR_LEQ, $1, $3); }
+	| comparison TOKEN_GREATER_EQUAL math
+		{ $$ = expr_create(EXPR_GEQ, $1, $3); }
+	| comparison TOKEN_EQUAL math
+		{ $$ = expr_create(EXPR_EQL, $1, $3); }
+	| comparison TOKEN_NOT_EQUAL math
+		{ $$ = expr_create(EXPR_NEQ, $1, $3); }
+	| math
+		{ $$ = $1; }
+	;
+
+math:
+	math TOKEN_ADD term
 		{ $$ = expr_create(EXPR_ADD, $1, $3); }
-	| subexpr TOKEN_SUBTRACT term
+	| math TOKEN_SUBTRACT term
 		{ $$ = expr_create(EXPR_SUB, $1, $3); }
 	| term
 		{ $$ = $1; }
@@ -290,28 +305,45 @@ term:
 	;
 
 factor:
-	factor TOKEN_POWER atomic
+	factor TOKEN_POWER unary
 		{ $$ = expr_create(EXPR_POW, $1, $3); }
-	| factor TOKEN_INCREMENT
-		{ $$ = expr_create(EXPR_INC, $1, NULL); }
-	| factor TOKEN_DECREMENT
-		{ $$ = expr_create(EXPR_DEC, $1, NULL); }
-	| atomic
+	| unary
 		{ $$ = $1; }
 	;
 
-atomic:
+unary:
+	TOKEN_SUBTRACT unary
+		{ $$ = expr_create(EXPR_NEG, NULL, $2); }
+	| TOKEN_ADD unary
+		{ $$ = expr_create(EXPR_POS, NULL, $2); }
+	| TOKEN_NOT unary
+		{ $$ = expr_create(EXPR_NOT, NULL, $2); }
+	| postfix
+		{ $$ = $1; }
+	;
+
+postfix:
+	postfix TOKEN_INCREMENT
+		{ $$ = expr_create(EXPR_INC, $1, NULL); }
+	| postfix TOKEN_DECREMENT
+		{ $$ = expr_create(EXPR_DEC, $1, NULL); }
+	| group
+		{ $$ = $1; }
+	;
+
+group:
 	TOKEN_L_PAREN expr TOKEN_R_PAREN
 		{ $$ = expr_create(EXPR_PRN, $2, NULL); }
 	| ident TOKEN_L_PAREN arg_list TOKEN_R_PAREN
 		{ $$ = expr_create(EXPR_FNC, $1, $3); }
 	| ident TOKEN_L_PAREN TOKEN_R_PAREN
 		{ $$ = expr_create(EXPR_FNC, $1, NULL); }
-	| TOKEN_SUBTRACT atomic
-		{ $$ = expr_create(EXPR_NEG, NULL, $2); }
-	| TOKEN_ADD atomic
-		{ $$ = expr_create(EXPR_POS, NULL, $2); }
-	| TOKEN_NUMBER
+	| atomic
+		{ $$ = $1; }
+	;
+
+atomic:
+	TOKEN_NUMBER
 		{ $$ = expr_create_integer_literal(atoi(yytext)); }
 	| TOKEN_CHAR
 		{ $$ = expr_create_char_literal(yytext[0]); }
@@ -321,8 +353,6 @@ atomic:
 		{ $$ = expr_create_boolean_literal(false); }
 	| TOKEN_TRUE
 		{ $$ = expr_create_boolean_literal(true); }
-	| TOKEN_NOT atomic
-		{ $$ = expr_create(EXPR_NOT, NULL, $2); }
 	| ident
 		{ $$ = $1; }
 	;
