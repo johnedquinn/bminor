@@ -42,7 +42,8 @@ const char * symbol_codegen (struct symbol * s) {
 
     // Local variables
     int offset = 8 + s->which * 8;
-    char * position;
+    char position [4];
     sprintf(position, "-%d(\%rbp)", offset);
-    return position;
+    char * new_position = strdup(position);
+    return new_position;
 }

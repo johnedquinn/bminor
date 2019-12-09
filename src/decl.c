@@ -112,6 +112,26 @@ void decl_typecheck (struct decl * d) {
     }
 }
 
-void decl_codegen(struct decl * d, int scratch_table [], FILE * stream) {
-
+// @func : decl_codegen
+// @desc : generate code for declarations
+void decl_codegen (struct decl * d, int scratch_table [], FILE * stream) {
+    if (!d) return;
+    switch (d->symbol->kind) {
+        case SYMBOL_GLOBAL:
+            fprintf(stream, ".data\n");
+            if (d->type->kind == TYPE_FUNCTION) {
+                fprintf(stream, "%s:\n", d->name);
+                // @TODO: handle params
+            }
+            else if (d->type->kind == TYPE_STRING) fprintf(stream, "%s: .string \"%s\"\n", d->name, d->value->string_literal);
+            else fprintf(stream, "%s: .quad %d\n", d->name, d->value->literal_value);
+            fprintf(stream, ".text\n");
+            break;
+        case SYMBOL_LOCAL:
+            break;
+        case SYMBOL_PARAM:
+            break;
+        default:
+            break;
+    }
 }

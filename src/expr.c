@@ -537,27 +537,30 @@ struct type * expr_typecheck (struct expr * e) {
     return result;
 }
 
+// @func : expr_codegen
+// @desc : generate assembly code for expressions
 void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
+    int done_label, true_label, fail_label, success_label;
     if (!e) return;
     switch (e->kind) {
         case EXPR_ADD:
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
-            fprintf(stream, "addq %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(stream, "ADDQ %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(scratch_table, e->left->reg);
             break;
         case EXPR_SUB:
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
-            fprintf(stream, "subq %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(stream, "SUBQ %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(scratch_table, e->left->reg);
             break;
         case EXPR_MUL:
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
-            fprintf(stream, "mulq %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(stream, "MULQ %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
             e->reg = e->right->reg;
             scratch_free(scratch_table, e->left->reg);
             break;
@@ -575,39 +578,156 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
             break;
         case EXPR_INC:
             expr_codegen(e->left, scratch_table, stream);
-            fprintf(stream, "addq $1, %s\n", scratch_name(e->left->reg));
+            fprintf(stream, "ADDQ $1, %s\n", symbol_codegen(e->left->symbol));
             e->reg = e->left->reg;
             break;
         case EXPR_DEC:
             expr_codegen(e->left, scratch_table, stream);
-            fprintf(stream, "subq $1, %s\n", scratch_name(e->left->reg));
+            fprintf(stream, "SUBQ $1, %s\n", symbol_codegen(e->left->symbol));
             e->reg = e->left->reg;
             break;
         case EXPR_LES:
+            true_label = label_create();
+            done_label = label_create();
+            e->reg = e->right->reg;
+            expr_codegen(e->left, scratch_table, stream);
+            expr_codegen(e->right, scratch_table, stream);
+            fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(stream, "JLT %s\n", label_name(true_label));
+            fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
+            fprintf(stream, "JMP %s\n", label_name(done_label));
+            fprintf(stream, "%s:\n", label_name(true_label));
+            fprintf(stream, "MOVQ $1, %s\n", scratch_name(e->reg));
+            fprintf(stream, "%s:\n", label_name(done_label));
+            scratch_free(scratch_table, e->left->reg);
+            break;
         case EXPR_GRE:
+            true_label = label_create();
+            done_label = label_create();
+            e->reg = e->right->reg;
+            expr_codegen(e->left, scratch_table, stream);
+            expr_codegen(e->right, scratch_table, stream);
+            fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(stream, "JGT %s\n", label_name(true_label));
+            fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
+            fprintf(stream, "JMP %s\n", label_name(done_label));
+            fprintf(stream, "%s:\n", label_name(true_label));
+            fprintf(stream, "MOVQ $1, %s\n", scratch_name(e->reg));
+            fprintf(stream, "%s:\n", label_name(done_label));
+            scratch_free(scratch_table, e->left->reg);
+            break;
         case EXPR_LEQ:
+            true_label = label_create();
+            done_label = label_create();
+            e->reg = e->right->reg;
+            expr_codegen(e->left, scratch_table, stream);
+            expr_codegen(e->right, scratch_table, stream);
+            fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(stream, "JLE %s\n", label_name(true_label));
+            fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
+            fprintf(stream, "JMP %s\n", label_name(done_label));
+            fprintf(stream, "%s:\n", label_name(true_label));
+            fprintf(stream, "MOVQ $1, %s\n", scratch_name(e->reg));
+            fprintf(stream, "%s:\n", label_name(done_label));
+            scratch_free(scratch_table, e->left->reg);
+            break;
         case EXPR_GEQ:
+            true_label = label_create();
+            done_label = label_create();
+            e->reg = e->right->reg;
+            expr_codegen(e->left, scratch_table, stream);
+            expr_codegen(e->right, scratch_table, stream);
+            fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(stream, "JGE %s\n", label_name(true_label));
+            fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
+            fprintf(stream, "JMP %s\n", label_name(done_label));
+            fprintf(stream, "%s:\n", label_name(true_label));
+            fprintf(stream, "MOVQ $1, %s\n", scratch_name(e->reg));
+            fprintf(stream, "%s:\n", label_name(done_label));
+            scratch_free(scratch_table, e->left->reg);
+            break;
         case EXPR_EQL:
+            true_label = label_create();
+            done_label = label_create();
+            e->reg = e->right->reg;
+            expr_codegen(e->left, scratch_table, stream);
+            expr_codegen(e->right, scratch_table, stream);
+            fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(stream, "JEQ %s\n", label_name(true_label));
+            fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
+            fprintf(stream, "JMP %s\n", label_name(done_label));
+            fprintf(stream, "%s:\n", label_name(true_label));
+            fprintf(stream, "MOVQ $1, %s\n", scratch_name(e->reg));
+            fprintf(stream, "%s:\n", label_name(done_label));
+            scratch_free(scratch_table, e->left->reg);
+            break;
         case EXPR_NEQ:
+            true_label = label_create();
+            done_label = label_create();
+            e->reg = e->right->reg;
+            expr_codegen(e->left, scratch_table, stream);
+            expr_codegen(e->right, scratch_table, stream);
+            fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+            fprintf(stream, "JNE %s\n", label_name(true_label));
+            fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
+            fprintf(stream, "JMP %s\n", label_name(done_label));
+            fprintf(stream, "%s:\n", label_name(true_label));
+            fprintf(stream, "MOVQ $1, %s\n", scratch_name(e->reg));
+            fprintf(stream, "%s:\n", label_name(done_label));
+            scratch_free(scratch_table, e->left->reg);
+            break;
         case EXPR_AND:
+            done_label = label_create();
+            fail_label = label_create();
+            e->reg = e->right->reg;
+            expr_codegen(e->left, scratch_table, stream);
+            expr_codegen(e->right, scratch_table, stream);
+            fprintf(stream, "CMP $0, %s\n", scratch_name(e->left->reg));
+            fprintf(stream, "JEQ %s\n", label_name(fail_label));
+            fprintf(stream, "CMP $0, %s\n", scratch_name(e->right->reg));
+            fprintf(stream, "JEQ %s\n", label_name(fail_label));
+            fprintf(stream, "MOVQ $1, %s\n", scratch_name(e->reg));
+            fprintf(stream, "JMP %s\n", label_name(done_label));
+            fprintf(stream, "%s:\n", label_name(fail_label));
+            fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
+            fprintf(stream, "%s:\n", label_name(done_label));
+            scratch_free(scratch_table, e->left->reg);
+            break;
         case EXPR_ORR:
+            done_label = label_create();
+            success_label = label_create();
+            e->reg = e->right->reg;
+            expr_codegen(e->left, scratch_table, stream);
+            expr_codegen(e->right, scratch_table, stream);
+            fprintf(stream, "CMP $1, %s\n", scratch_name(e->left->reg));
+            fprintf(stream, "JEQ %s\n", label_name(success_label));
+            fprintf(stream, "CMP $1, %s\n", scratch_name(e->right->reg));
+            fprintf(stream, "JEQ %s\n", label_name(success_label));
+            fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
+            fprintf(stream, "JMP %s\n", label_name(done_label));
+            fprintf(stream, "%s:\n", label_name(success_label));
+            fprintf(stream, "MOVQ $1, %s\n", scratch_name(e->reg));
+            fprintf(stream, "%s:\n", label_name(done_label));
+            scratch_free(scratch_table, e->left->reg);
             break;
         case EXPR_ASN:
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
-            fprintf(stream, "movq %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg));
+            fprintf(stream, "MOVQ %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg));
             e->reg = e->left->reg;
             scratch_free(scratch_table, e->right->reg);
             break;
         case EXPR_IND:
         case EXPR_ARG:
         case EXPR_NAM:
+            e->reg = scratch_alloc(scratch_table);
+            fprintf(stream, "MOVQ %s, %s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
             break;
         case EXPR_INT:
         case EXPR_BUL:
         case EXPR_CHR:
             e->reg = scratch_alloc(scratch_table);
-            fprintf(stream, "movq $%d, %s\n", e->literal_value, scratch_name(e->reg));
+            fprintf(stream, "MOVQ $%d, %s\n", e->literal_value, scratch_name(e->reg));
             break;
         case EXPR_STR:
         case EXPR_NUL:

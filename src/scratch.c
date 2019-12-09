@@ -52,7 +52,8 @@ int label_create () {
 // @func : label_name
 // @desc : returns the label name
 const char * label_name (int label) {
-    char * s;
+    char s [4];
     sprintf(s, ".L%d", label);
-    return s;
+    char * new_s = strdup(s);
+    return new_s;
 }
