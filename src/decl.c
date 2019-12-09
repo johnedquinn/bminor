@@ -13,9 +13,13 @@ struct decl * decl_create (char * name, struct type * type,
         struct decl * decl = malloc(sizeof(*decl));
         decl->name = strdup(name);
         decl->type = type;
-        decl->value = value;
         decl->code = code;
         decl->next = next;
+        if (value) decl->value = value;
+        else {
+            if (type->kind == TYPE_STRING) decl->value = expr_create_string_literal("");
+            else decl->value = expr_create_integer_literal(0);
+        }
         return decl;
 }
 
