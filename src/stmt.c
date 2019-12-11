@@ -184,14 +184,24 @@ void stmt_typecheck (struct stmt * s, struct decl * d) {
 // @desc: generate code for statements
 void stmt_codegen (struct stmt * s, int scratch_table [], FILE * stream) {
 	if (!s) return;
+	int else_label, done_label, begin_label;
 	switch(s->kind) {
 		case STMT_EXPR:
 			expr_codegen(s->expr, scratch_table, stream);
+			scratch_free(scratch_table, s->expr->reg);
 			break;
 		case STMT_IF_ELSE:
+			else_label = label_create();
+			done_label = label_create();
 			expr_codegen(s->expr, scratch_table, stream);
+			fprintf(stream, "CMP $0, %s\n", scratch_name(s->expr->reg));
+			scratch_free(scratch_table, s->expr->reg);
+			fprintf(stream, "JE %s\n", label_name(else_label));
 			stmt_codegen(s->body, scratch_table, stream);
+			fprintf(stream, "JMP %s\n", label_name(done_label));
+			fprintf(stream, "%s:\n", label_name(else_label));
 			stmt_codegen(s->else_body, scratch_table, stream);
+			fprintf(stream, "%s:\n", label_name(done_label));
 			break;
 		case STMT_BLOCK:
 			stmt_codegen(s->body, scratch_table, stream);
@@ -199,47 +209,35 @@ void stmt_codegen (struct stmt * s, int scratch_table [], FILE * stream) {
 		case STMT_DECL:
 			decl_codegen(s->decl, scratch_table, stream);
 			break;
+		/// @TODO: Finish
 		case STMT_PRINT:
-			//expr_codegen(s->expr, scratch_table, stream);
+			/// @TODO: Pass in arguments
+			/// @TODO: Call appropriate print
+            fprintf(stream, "CALL print_????\n");
 			break;
+		/// @TODO: Check
 		case STMT_RETURN:
-			/*// Grab expression return type
-			if (s->expr) t = expr_typecheck(s->expr);
-			else t = type_create(TYPE_VOID, NULL, NULL);
-
-			// Make sure inside function scope
-			if (!d) {
-                fprintf(stderr, AC_RED "type error: " AC_RESET " cannot return outside of function.\n", s->expr->name);
-				NUM_TYPECHECK_ERRORS++;
-				break;
-			}
-
-			// Update auto function
-			if (d->symbol->type->subtype->kind == TYPE_AUTO) {
-				d->symbol->type->subtype = t;
-			}
-
-			// Make sure to not return auto
-			if (t->kind == TYPE_AUTO && d->symbol->type->subtype->kind == TYPE_AUTO) {
-                fprintf(stderr, AC_RED "type error: " AC_RESET "cannot infer type of %s\n", s->expr->name);
-			}
-
-			// Check return type of function with type of return expression
-			if (!type_equals(t, d->symbol->type->subtype)) {
-                fprintf(stderr, AC_RED "type error: " AC_RESET "cannot return type ");
-                type_t_print_err(t->kind);
-                fprintf(stderr, " in function of return type ");
-                type_t_print_err(d->symbol->type->subtype->kind);
-                fprintf(stderr, ".\n");
-				NUM_TYPECHECK_ERRORS++;
-			}*/
+			expr_codegen(s->expr, scratch_table, stream);
+			fprintf(stream, "MOVQ %s, %rax\n", scratch_name(s->expr->reg));
+			fprintf(stream, "RET\n");
+			scratch_free(scratch_table, s->expr->reg);
 			break;
 		case STMT_FOR:
-			/*expr_typecheck(s->init_expr);
-			expr_typecheck(s->expr);
-			expr_typecheck(s->next_expr);
-			stmt_typecheck(s->body, d);*/
+			begin_label = label_create();
+			done_label = label_create();
+			expr_codegen(s->init_expr, scratch_table, stream);
+			scratch_free(scratch_table, s->init_expr->reg);
+			fprintf(stream, "%s:\n", label_name(begin_label));
+			expr_codegen(s->expr, scratch_table, stream);
+			fprintf(stream, "CMP $0, %s\n", scratch_name(s->expr->reg));
+			fprintf(stream, "JE %s\n", label_name(done_label));
+			stmt_codegen(s->body, scratch_table, stream);
+			expr_codegen(s->next_expr, scratch_table, stream);
+			scratch_free(scratch_table, s->next_expr->reg);
+			fprintf(stream, "JMP %s\n", label_name(begin_label));
+			fprintf(stream, "%s:\n", label_name(done_label));
 			break;
+		/// @TODO: Errors
 		default:
 			break;
 	}
