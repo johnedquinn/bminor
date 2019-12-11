@@ -74,7 +74,11 @@ void decl_resolve (struct decl * d, struct hash_table * head) {
 void decl_typecheck (struct decl * d) {
     if (!d) return;
     struct type *t;
-    if (d->value) {
+    // Check function return types
+    if (d->code) {
+        stmt_typecheck(d->code, d);
+    }
+    else if (d->value) {
         t = expr_typecheck(d->value);
         // Check Auto
         if (d->symbol->type->kind == TYPE_AUTO) d->symbol->type = t;
@@ -110,10 +114,6 @@ void decl_typecheck (struct decl * d) {
             NUM_TYPECHECK_ERRORS++;
         }
     }
-    // Check function return types
-    if (d->code) {
-        stmt_typecheck(d->code, d);
-    }
 }
 
 // @func : decl_codegen
@@ -122,14 +122,50 @@ void decl_codegen (struct decl * d, int scratch_table [], FILE * stream) {
     if (!d) return;
     switch (d->symbol->kind) {
         case SYMBOL_GLOBAL:
-            fprintf(stream, ".data\n");
             if (d->type->kind == TYPE_FUNCTION) {
+                fprintf(stream, ".globl %s\n", d->name);
                 fprintf(stream, "%s:\n", d->name);
-                // @TODO: handle params
+                fprintf(stream, "\tPUSHQ %rbp\n");
+                fprintf(stream, "\tMOVQ %rsp, %rbp\n");
+
+                // @TODO: handle arguments
+
+                // @TODO: ALLOCATE LOCAL REGISTERS
+                //fprintf(stream, "SUBQ "); 
+
+                // Store Calle-Saved Registers
+                fprintf(stream, "\tPUSHQ %rbx\n");
+                fprintf(stream, "\tPUSHQ %r12\n");
+                fprintf(stream, "\tPUSHQ %r13\n");
+                fprintf(stream, "\tPUSHQ %r14\n");
+                fprintf(stream, "\tPUSHQ %r15\n");
+
+                // @TODO: Load each arg into a register
+
+                // @TODO: BODY & RETURNS
+
+                // Restore Calle-Saved Registers
+                fprintf(stream, "\tPOPQ %r15\n");
+                fprintf(stream, "\tPOPQ %r14\n");
+                fprintf(stream, "\tPOPQ %r13\n");
+                fprintf(stream, "\tPOPQ %r12\n");
+                fprintf(stream, "\tPOPQ %rbx\n");
+
+                //
+                fprintf(stream, "\tMOVQ %rbp, %rsp\n");
+                fprintf(stream, "\tPOPQ %rbp\n");
+                fprintf(stream, "\tRET\n");
             }
-            else if (d->type->kind == TYPE_STRING) fprintf(stream, "%s: .string \"%s\"\n", d->name, d->value->string_literal);
-            else fprintf(stream, "%s: .quad %d\n", d->name, d->value->literal_value);
-            fprintf(stream, ".text\n");
+            else if (d->type->kind == TYPE_STRING) {
+                fprintf(stream, ".data\n");
+                fprintf(stream, "%s: .string \"%s\"\n", d->name, d->value->string_literal);
+                fprintf(stream, ".text\n");
+            }
+            else {
+                fprintf(stream, ".data\n");
+                fprintf(stream, "%s: .quad %d\n", d->name, d->value->literal_value);
+                fprintf(stream, ".text\n");
+            }
             break;
         case SYMBOL_LOCAL:
             break;
