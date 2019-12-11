@@ -7,12 +7,14 @@
 #include <stdio.h>
 #include "library.h"
 
-extern unsigned int COUNTER;
+extern unsigned int SCRATCH_COUNTER;
 
 int scratch_alloc (int scratch_table []);
 void scratch_free (int scratch_table [], int r);
 const char * scratch_name (int r);
 int label_create ();
 const char * label_name (int label);
+const char * arg_name (int arg);
+
 
 #endif

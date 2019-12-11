@@ -364,6 +364,7 @@ ident:
 
 arg_list:
 	expr
+		{ $$ = expr_create(EXPR_ARG, $1, 0); }
 	| expr TOKEN_COMMA arg_list
 		{ $$ = expr_create(EXPR_ARG, $1, $3); }
 	;

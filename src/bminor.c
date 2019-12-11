@@ -18,7 +18,8 @@ int NUM_SCAN_ERRORS = 0;
 int NUM_PARSE_ERRORS = 0;
 int NUM_RESOLVE_ERRORS = 0;
 int NUM_TYPECHECK_ERRORS = 0;
-unsigned int COUNTER = 0;
+unsigned int SCRATCH_COUNTER = 0;
+unsigned int ARG_COUNTER = 0;
 
 /* EXTERNS */
 extern FILE *yyin;

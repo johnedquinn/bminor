@@ -13,6 +13,7 @@
 
 extern int NUM_RESOLVE_ERRORS;
 extern int NUM_TYPECHECK_ERRORS;
+extern unsigned int ARG_COUNTER;
 
 typedef enum {
 	EXPR_ADD,	// +

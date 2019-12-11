@@ -155,6 +155,7 @@ void decl_codegen (struct decl * d, int scratch_table [], FILE * stream) {
                 fprintf(stream, "\tMOVQ %rbp, %rsp\n");
                 fprintf(stream, "\tPOPQ %rbp\n");
                 fprintf(stream, "\tRET\n");
+                fprintf(stream, ".text\n");
             }
             else if (d->type->kind == TYPE_STRING) {
                 fprintf(stream, ".data\n");

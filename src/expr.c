@@ -540,8 +540,11 @@ struct type * expr_typecheck (struct expr * e) {
 // @func : expr_codegen
 // @desc : generate assembly code for expressions
 void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
-    int done_label, true_label, fail_label, success_label;
+
     if (!e) return;
+
+    int done_label, true_label, fail_label, success_label;
+
     switch (e->kind) {
         case EXPR_ADD:
             expr_codegen(e->left, scratch_table, stream);
@@ -623,16 +626,21 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
         /// @TODO: Finish
         case EXPR_FNC:
             /// @TODO: Pass in arguments
+            expr_codegen(e->right, scratch_table, stream);
             fprintf(stream, "PUSHQ %r10\n");
             fprintf(stream, "PUSHQ %r11\n");
-            fprintf(stream, "CALL %s\n", e->name);
+            fprintf(stream, "CALL %s\n", e->left->name);
             fprintf(stream, "POPQ %r11\n");
             fprintf(stream, "POPQ %r10\n");
             e->reg = scratch_alloc(scratch_table);
             fprintf(stream, "MOVQ %r10, %s\n", scratch_name(e->reg));
             break;
-        /// @TODO: Arguments
         case EXPR_ARG:
+            expr_codegen(e->left, scratch_table, stream);
+            fprintf(stream, "MOVQ %s, %s\n", scratch_name(e->left->reg), arg_name(ARG_COUNTER++));
+            scratch_free(scratch_table, e->left->reg);
+            expr_codegen(e->right, scratch_table, stream);
+            ARG_COUNTER = 0;
             break;
         case EXPR_PRN:
             expr_codegen(e->left, scratch_table, stream);
@@ -805,8 +813,12 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
             e->reg = scratch_alloc(scratch_table);
             fprintf(stream, "MOVQ $%d, %s\n", e->literal_value, scratch_name(e->reg));
             break;
-        /// @TODO: String
+        /// @TODO: String --> WRONG
         case EXPR_STR:
+            fprintf(stream, ".data\n");
+            fprintf(stream, "%s:\n", symbol_codegen(e->symbol));
+            fprintf(stream, ".string \"%s\"", e->string_literal);
+            fprintf(stream, ".text\n");
             break;
         /// @TODO: Error
         case EXPR_NUL:

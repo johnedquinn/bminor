@@ -45,8 +45,8 @@ const char * scratch_name (int r) {
 // @func : label_create
 // @desc : returns a new label
 int label_create () {
-    COUNTER++;
-    return COUNTER;
+    SCRATCH_COUNTER++;
+    return SCRATCH_COUNTER;
 }
 
 // @func : label_name
@@ -56,4 +56,26 @@ const char * label_name (int label) {
     sprintf(s, ".L%d", label);
     char * new_s = strdup(s);
     return new_s;
+}
+
+/// @func: arg_name
+/// @desc: returns the name of the argument register
+const char * arg_name (int arg) {
+       switch (arg) {
+        case 0:
+            return "%rdi";
+        case 1:
+            return "%rsi";
+        case 2:
+            return "%rdx";
+        case 3:
+            return "%rcx";
+        case 4:
+            return "%r8";
+        case 5:
+            return "%r9";
+        default:
+            return NULL;
+    }
+    return NULL; 
 }
