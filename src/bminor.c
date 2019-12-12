@@ -18,6 +18,7 @@ int NUM_SCAN_ERRORS = 0;
 int NUM_PARSE_ERRORS = 0;
 int NUM_RESOLVE_ERRORS = 0;
 int NUM_TYPECHECK_ERRORS = 0;
+int NUM_CODEGEN_ERRORS = 0;
 unsigned int SCRATCH_COUNTER = 0;
 unsigned int ARG_COUNTER = 0;
 
@@ -44,6 +45,7 @@ int main (int argc, char * argv[]) {
 	bool RESOLVE = false;
 	bool TYPECHECK = false;
 	bool CODEGEN = false;
+	bool COMPLETE = false;
 	char * FILE_NAME = "a.out.s";
 
 	if (argc < 3) {
@@ -52,13 +54,15 @@ int main (int argc, char * argv[]) {
 	}
 
 	if (!strcmp(argv[1], "-scan")) SCAN = true;
-	if (!strcmp(argv[1], "-parse")) PARSE = true;
-	if (!strcmp(argv[1], "-print")) PRINT = true;
-	if (!strcmp(argv[1], "-resolve")) RESOLVE = true;
-	if (!strcmp(argv[1], "-typecheck")) TYPECHECK = true;
-	if (!strcmp(argv[1], "-codegen")) {
+	else if (!strcmp(argv[1], "-parse")) PARSE = true;
+	else if (!strcmp(argv[1], "-print")) PRINT = true;
+	else if (!strcmp(argv[1], "-resolve")) RESOLVE = true;
+	else if (!strcmp(argv[1], "-typecheck")) TYPECHECK = true;
+	else if (!strcmp(argv[1], "-codegen")) {
 		if (argc == 4) FILE_NAME = argv[3];
 		CODEGEN = true;
+	} else {
+		COMPLETE = true;
 	}
 
 	/* Open file to scan */
@@ -76,7 +80,7 @@ int main (int argc, char * argv[]) {
 			if (scanInfo(t) == false) exit(1);
 		}
 	}
-	if (PARSE || PRINT || RESOLVE || TYPECHECK || CODEGEN) {
+	if (PARSE || PRINT || RESOLVE || TYPECHECK || CODEGEN || COMPLETE) {
 		if (yyparse() == 0) {
 			if (PARSE) {
 				printf("parse successful: \n");
@@ -84,7 +88,7 @@ int main (int argc, char * argv[]) {
 			if (PRINT) {
 				stmt_print(parser_result, 0);
 			}
-			if (RESOLVE || TYPECHECK || CODEGEN) {
+			if (RESOLVE || TYPECHECK || CODEGEN || COMPLETE) {
 				struct hash_table * head = NULL;
 				stmt_resolve(parser_result, head);
 				if (NUM_RESOLVE_ERRORS) {
@@ -92,14 +96,14 @@ int main (int argc, char * argv[]) {
 					return 1;
 				}
 			}
-			if (TYPECHECK || CODEGEN) {
+			if (TYPECHECK || CODEGEN || COMPLETE) {
 				stmt_typecheck(parser_result, NULL);
 				if (NUM_TYPECHECK_ERRORS) {
 					fprintf(stderr, AC_CYAN "=======> " AC_RED "typechecking failed: " AC_RESET "%d typechecking errors\n", NUM_TYPECHECK_ERRORS);
 					return 1;
 				}
 			}
-			if (CODEGEN) {
+			if (CODEGEN || COMPLETE) {
 				int scratch_table [6] = {0};
 				FILE * OUTPUT_FILE = fopen(FILE_NAME, "w");
 				if (!OUTPUT_FILE) {
@@ -108,6 +112,24 @@ int main (int argc, char * argv[]) {
 				}
 				stmt_codegen(parser_result, scratch_table, OUTPUT_FILE);
 				fclose(OUTPUT_FILE);
+				if (NUM_CODEGEN_ERRORS > 0) {
+					fprintf(stderr, AC_CYAN "=======> " AC_RED "codegen failed: " AC_RESET "%d typechecking errors\n", NUM_CODEGEN_ERRORS);
+					return 1;
+				}
+			if (COMPLETE) {
+				if (execvp("gcc", "-c %s -o %s.o", FILE_NAME) < 0) {
+					fprintf(stderr, AC_RED "assembly failed\n");
+					return 1;
+				}
+				if (execvp("gcc", "%s.o bin/library.o", FILE_NAME) < 0) {
+					fprintf(stderr, AC_RED "linking failed\n");
+					return 1;
+				}
+				if (execvp("rm", "%s.o %s", FILE_NAME) < 0) {
+					fprintf(stderr, AC_RED "removing garbage files failed\n");
+					return 1;
+				}
+			}
 			}
 			return 0;
 		} else {

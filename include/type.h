@@ -8,6 +8,7 @@
 
 #include "param_list.h"
 #include <stdbool.h>
+#include <stdio.h>
 
 typedef enum {
 	TYPE_VOID=0,
@@ -31,6 +32,7 @@ struct type * type_create( type_t kind, struct type *subtype, struct param_list 
 void          type_print( struct type *t );
 void type_t_print_err (type_t kind);
 void type_t_print (type_t kind);
+void type_t_print_stmt (type_t t, FILE * stream);
 struct type * type_copy (struct type * t);
 void type_delete (struct type * t);
 bool type_equals (struct type * a, struct type * b);

@@ -53,6 +53,26 @@ struct expr * expr_create_string_literal (const char * str) {
     return e;
 }
 
+void expr_t_print_stmt (expr_t t, FILE * stream) {
+    switch (t) {
+        case EXPR_INT:
+            fprintf(stream, "CALL print_integer\n");
+            break;
+        case EXPR_BUL:
+            fprintf(stream, "CALL print_boolean\n");
+            break;
+        case EXPR_CHR:
+            fprintf(stream, "CALL print_character\n");
+            break;
+        case EXPR_STR:
+            fprintf(stream, "CALL print_string\n");
+            break;
+        default:
+            fprintf(stderr, AC_RED "codegen error: " AC_RESET "cannot print passed type\n");
+            break;
+    }
+}
+
 // @name : expr_print
 // @desc : prints an expr's information
 void expr_print (struct expr * e) {
@@ -623,17 +643,17 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
             expr_codegen(e->right, scratch_table, stream);
             e->reg = e->right->reg;
             break;
-        /// @TODO: Finish
         case EXPR_FNC:
-            /// @TODO: Pass in arguments
+            // Print Arguments
             expr_codegen(e->right, scratch_table, stream);
+            // Function Call
             fprintf(stream, "PUSHQ %r10\n");
             fprintf(stream, "PUSHQ %r11\n");
             fprintf(stream, "CALL %s\n", e->left->name);
             fprintf(stream, "POPQ %r11\n");
             fprintf(stream, "POPQ %r10\n");
             e->reg = scratch_alloc(scratch_table);
-            fprintf(stream, "MOVQ %r10, %s\n", scratch_name(e->reg));
+            fprintf(stream, "MOVQ %rax, %s\n", scratch_name(e->reg));
             break;
         case EXPR_ARG:
             expr_codegen(e->left, scratch_table, stream);
@@ -827,4 +847,13 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
         default:
             break;
     }
+}
+
+void args_codegen (struct expr * e, int scratch_table [], FILE * stream) {
+    if (!e) return;
+    expr_codegen(e->left, scratch_table, stream);
+    fprintf(stream, "MOVQ %s, %s\n", scratch_name(e->left->reg), arg_name(ARG_COUNTER++));
+    scratch_free(scratch_table, e->left->reg);
+    expr_codegen(e->right, scratch_table, stream);
+    ARG_COUNTER = 0;
 }

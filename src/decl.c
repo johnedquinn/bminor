@@ -140,9 +140,10 @@ void decl_codegen (struct decl * d, int scratch_table [], FILE * stream) {
                 fprintf(stream, "\tPUSHQ %r14\n");
                 fprintf(stream, "\tPUSHQ %r15\n");
 
-                // @TODO: Load each arg into a register
+                // Grab params and put on stack
 
                 // @TODO: BODY & RETURNS
+                stmt_codegen(d->code, scratch_table, stream);
 
                 // Restore Calle-Saved Registers
                 fprintf(stream, "\tPOPQ %r15\n");

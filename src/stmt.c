@@ -185,6 +185,7 @@ void stmt_typecheck (struct stmt * s, struct decl * d) {
 void stmt_codegen (struct stmt * s, int scratch_table [], FILE * stream) {
 	if (!s) return;
 	int else_label, done_label, begin_label;
+	struct expr * e;
 	switch(s->kind) {
 		case STMT_EXPR:
 			expr_codegen(s->expr, scratch_table, stream);
@@ -209,17 +210,32 @@ void stmt_codegen (struct stmt * s, int scratch_table [], FILE * stream) {
 		case STMT_DECL:
 			decl_codegen(s->decl, scratch_table, stream);
 			break;
-		/// @TODO: Finish
 		case STMT_PRINT:
-			/// @TODO: Pass in arguments
-			/// @TODO: Call appropriate print
-            fprintf(stream, "CALL print_????\n");
+			e = s->expr;
+			while (e) {
+            	expr_codegen(e->left, scratch_table, stream);
+            	fprintf(stream, "MOVQ %s, %rdi\n", scratch_name(e->left->reg));
+				if (e->left->kind == EXPR_NAM) {
+					type_t_print_stmt(e->left->symbol->type->kind, stream);
+				} else {
+					expr_t_print_stmt(e->left->kind, stream);
+				}
+            	scratch_free(scratch_table, e->left->reg);
+				e = e->right;
+			}
 			break;
 		/// @TODO: Check
 		case STMT_RETURN:
 			expr_codegen(s->expr, scratch_table, stream);
-			fprintf(stream, "MOVQ %s, %rax\n", scratch_name(s->expr->reg));
-			fprintf(stream, "RET\n");
+			fprintf(stream, "\tMOVQ %s, %rax\n", scratch_name(s->expr->reg));
+            fprintf(stream, "\tPOPQ %r15\n");
+            fprintf(stream, "\tPOPQ %r14\n");
+            fprintf(stream, "\tPOPQ %r13\n");
+            fprintf(stream, "\tPOPQ %r12\n");
+            fprintf(stream, "\tPOPQ %rbx\n");
+            fprintf(stream, "\tMOVQ %rbp, %rsp\n");
+            fprintf(stream, "\tPOPQ %rbp\n");
+            fprintf(stream, "\tRET\n");
 			scratch_free(scratch_table, s->expr->reg);
 			break;
 		case STMT_FOR:

@@ -33,6 +33,26 @@ void type_print (struct type * t) {
     }
 }
 
+void type_t_print_stmt (type_t t, FILE * stream) {
+    switch (t) {
+	case TYPE_BOOLEAN:
+        fprintf(stream, "CALL print_boolean\n");
+        break;
+	case TYPE_CHARACTER:
+        fprintf(stream, "CALL print_character\n");
+        break;
+	case TYPE_INTEGER:
+        fprintf(stream, "CALL print_integer\n");
+        break;
+	case TYPE_STRING:
+        fprintf(stream, "CALL print_string\n");
+        break;
+    default:
+        fprintf(stderr, AC_RED "codegen error: " AC_RESET "cannot print passed type\n");
+        break;
+    }
+}
+
 // @name : type_t_print
 // @desc : prints the type_t string translation
 void type_t_print (type_t kind) {
