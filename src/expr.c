@@ -619,9 +619,9 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
         case EXPR_SUB:
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
-            fprintf(stream, "SUBQ %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-            e->reg = e->right->reg;
-            scratch_free(scratch_table, e->left->reg);
+            fprintf(stream, "SUBQ %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg));
+            e->reg = e->left->reg;
+            scratch_free(scratch_table, e->right->reg);
             break;
         case EXPR_MUL:
             expr_codegen(e->left, scratch_table, stream);
