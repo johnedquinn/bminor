@@ -256,7 +256,7 @@ void stmt_codegen (struct stmt * s, int scratch_table [], FILE * stream) {
 			fprintf(stream, "%s:\n", label_name(begin_label));
 			expr_codegen(s->expr, scratch_table, stream);
 			fprintf(stream, "CMP $0, %s\n", scratch_name(s->expr->reg));
-			fprintf(stream, "JNE %s\n", label_name(done_label));
+			fprintf(stream, "JE %s\n", label_name(done_label));
 			stmt_codegen(s->body, scratch_table, stream);
 			expr_codegen(s->next_expr, scratch_table, stream);
 			scratch_free(scratch_table, s->next_expr->reg);
