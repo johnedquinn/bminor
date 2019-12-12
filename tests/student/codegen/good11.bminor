@@ -1,0 +1,9 @@
+
+main : function integer () = {
+
+    if (5 < 10) {
+        print "5 < 10!!!\n";
+    }
+
+    return 0;
+}

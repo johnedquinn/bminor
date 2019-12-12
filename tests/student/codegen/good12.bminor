@@ -1,0 +1,10 @@
+
+
+i : integer = 0;
+main : function void () = {
+
+    for (i = 0; i < 100; i++) {
+        print i % 10, "\n";
+    }
+
+}

@@ -1,0 +1,9 @@
+
+
+main : function integer () = {
+
+    i : integer = 100;
+
+    return i / 100;
+
+}

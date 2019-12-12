@@ -1,0 +1,7 @@
+
+
+main : function boolean () = {
+
+    return true;
+
+}

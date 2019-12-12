@@ -1,0 +1,8 @@
+
+i : integer;
+
+main : function void () = {
+    for (i = 0; i < 100; i++) {
+        print "SUP!\n";
+    }
+}

@@ -1,0 +1,9 @@
+
+func : function boolean () = {
+    return true;
+}
+
+main : function void () = {
+    b : boolean = func();
+    print b;
+}

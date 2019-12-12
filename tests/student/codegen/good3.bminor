@@ -1,0 +1,8 @@
+
+
+main : function void () = {
+    i : integer = 0;
+    for (i = 0; i < 5; i++) {
+        print i, "\n";
+    }
+}

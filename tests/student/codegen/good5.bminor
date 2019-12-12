@@ -1,0 +1,8 @@
+
+func : function string () = {
+    return "hahaha";
+}
+
+main : function void () = {
+    print func();
+}

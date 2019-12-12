@@ -1,0 +1,7 @@
+
+
+main : function void () = {
+    if (true || false) {
+        print "OR WORKS!\n"; 
+    }
+}

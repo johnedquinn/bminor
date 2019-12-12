@@ -1,0 +1,5 @@
+
+
+main : function char () = {
+    return 'c';
+}

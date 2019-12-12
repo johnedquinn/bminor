@@ -1,0 +1,14 @@
+
+main : function void () = {
+    if (false) {
+        print "fail";
+    } else if (false) {
+        print "fail";
+    } else {
+        if (true) {
+             print "success!\n";
+        } else {
+            print "fail\n";
+        }
+    }
+}

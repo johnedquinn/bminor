@@ -1,0 +1,10 @@
+
+
+i : integer = 0;
+
+main : function integer () = {
+
+    print "This works!\n";
+    print "i = ", i, "\n";
+    return 0;
+}

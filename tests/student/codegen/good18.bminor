@@ -1,0 +1,9 @@
+
+
+i : integer = 5;
+
+main : function integer () = {
+
+    return i ^ i;
+
+}
