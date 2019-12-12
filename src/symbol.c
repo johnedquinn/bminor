@@ -3,7 +3,7 @@
 // @desc   : defines the symbol struct
 // @notes  : NA
 
-#include "../include/symbol.h"
+#include "symbol.h"
 
 // @name: symbol_create
 // @desc: creates a symbol

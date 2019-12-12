@@ -9,7 +9,6 @@
 #include "type.h"
 #include "hash_table.h"
 #include "symbol.h"
-#include <stdbool.h>
 #include "library.h"
 #include "param_list.h"
 #include <stdlib.h>
@@ -17,7 +16,6 @@
 
 extern unsigned int NUM_RESOLVE_ERRORS;
 extern unsigned int MAX_LOCAL;
-extern bool RESOLVE;
 
 void scope_enter (struct hash_table ** head);
 void scope_exit (struct hash_table ** head);

@@ -3,7 +3,8 @@
 // @desc   : defines the type struct
 // @notes  : NA
 
-#include "../include/type.h"
+#include "type.h"
+#include <stdlib.h>
 
 // @name : type_create
 // @desc : creates a type struct
@@ -53,10 +54,7 @@ void type_t_print_stmt (struct type * type, FILE * stream) {
         type_t_print_stmt(type->subtype, stream);
         break;
     case TYPE_ARRAY:
-        type_t_print_stmt(type->subtype, stream);
-        break;
     case TYPE_AUTO:
-        break;
     default:
         fprintf(stderr, AC_RED "codegen error: " AC_RESET "cannot print passed type\n");
         break;

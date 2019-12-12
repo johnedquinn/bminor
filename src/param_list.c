@@ -3,7 +3,7 @@
 // @desc   : defines the param_list struct
 // @notes  : NA
 
-#include "../include/param_list.h"
+#include "param_list.h"
 
 // @name : param_list_create
 // @desc : creates a param_list struct

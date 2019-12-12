@@ -3,7 +3,7 @@
 // @desc   : defines the stmt struct
 // @notes  : NA
 
-#include "../include/stmt.h"
+#include "stmt.h"
 
 // @name: stmt_create
 // @desc: creates a statement structure

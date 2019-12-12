@@ -1,8 +1,9 @@
-#include "../include/scope.h"
+#include "scope.h"
 
 // @name: scope_enter
 // @desc: create a new hash table
 void scope_enter (struct hash_table ** head) {
+    //debug("SCOPE ENTER = %ld", *head);
     if (!*head) {
         *head = hash_table_create(0, 0);
         return;
@@ -16,6 +17,7 @@ void scope_enter (struct hash_table ** head) {
 // @desc: remove a hash table
 void scope_exit (struct hash_table ** head) {
     if (!*head) return;
+    //debug("SCOPE EXIT = %ld", *head);
     struct hash_table * temp = (*head)->next;
     hash_table_delete(*head);
     *head = temp;
@@ -27,6 +29,7 @@ int scope_level (struct hash_table * head) {
     int level = 0;
     struct hash_table * current = head;
     while (current) {
+        //debug("SCOPE Level  = %d; CURRENT = %ld", level, current);
         level++;
         current = current->next;
     }
@@ -63,19 +66,15 @@ void scope_bind (struct hash_table * head, const char * name, struct symbol * sy
     }
     
     // Print resolution message
-    if (RESOLVE) {
-        if (sym->kind == SYMBOL_LOCAL)
-            fprintf(stdout, "%s resolves to local %d\n", sym->name, sym->which);
-        else if (sym->kind == SYMBOL_GLOBAL)
-            fprintf(stdout, "%s resolves to global %s\n", sym->name, sym->name);
-        else
-            fprintf(stdout, "%s resolves to param %d\n", sym->name, sym->which);
-    }
+    if (sym->kind == SYMBOL_LOCAL)
+        fprintf(stdout, "%s resolves to local %d\n", sym->name, sym->which);
+    else if (sym->kind == SYMBOL_GLOBAL)
+        fprintf(stdout, "%s resolves to global %s\n", sym->name, sym->name);
+    else
+        fprintf(stdout, "%s resolves to param %d\n", sym->name, sym->which);
 
-    // Update Max Local
     MAX_LOCAL = sym->which;
 }
-
 // @name: scope_lookup
 // @desc: searches the entire stack for a variable
 struct symbol * scope_lookup (struct hash_table * head, const char * name) {

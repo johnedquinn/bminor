@@ -16,7 +16,7 @@ extern unsigned int NUM_TYPECHECK_ERRORS;
 extern unsigned int ARG_COUNTER;
 
 typedef enum {
-	EXPR_ADD=0,	// +
+	EXPR_ADD,	// +
 	EXPR_SUB,	// -
 	EXPR_MUL,	// *
 	EXPR_MOD,	// %

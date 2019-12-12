@@ -79,7 +79,7 @@ for use by scanner.c.
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../include/stmt.h"
+#include "stmt.h"
 
 /*
 YYSTYPE is the lexical value returned by each rule in a bison grammar.
