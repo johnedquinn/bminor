@@ -46,27 +46,54 @@ int main (int argc, char * argv[]) {
 	bool TYPECHECK = false;
 	bool CODEGEN = false;
 	bool COMPLETE = false;
-	char * FILE_NAME = "a.out.s";
+	char * IN_FILE_NAME = NULL;
+	char * OUT_FILE_NAME = NULL;
 
-	if (argc < 3) {
-		fprintf(stderr, AC_RED "USAGE ERROR" AC_RESET " -- Correct Syntax Usage: " AC_CYAN "bminor -FLAG FILE\n" AC_RESET);
-		exit(1);
+	if (argc == 1) {
+		return 1;
 	}
 
-	if (!strcmp(argv[1], "-scan")) SCAN = true;
-	else if (!strcmp(argv[1], "-parse")) PARSE = true;
-	else if (!strcmp(argv[1], "-print")) PRINT = true;
-	else if (!strcmp(argv[1], "-resolve")) RESOLVE = true;
-	else if (!strcmp(argv[1], "-typecheck")) TYPECHECK = true;
-	else if (!strcmp(argv[1], "-codegen")) {
-		if (argc == 4) FILE_NAME = argv[3];
-		CODEGEN = true;
-	} else {
-		COMPLETE = true;
+	unsigned int cmd_index = 1;
+	while (cmd_index < argc) {
+		if (!strcmp(argv[cmd_index], "-scan")) SCAN = true;
+		else if (!strcmp(argv[cmd_index], "-parse")) PARSE = true;
+		else if (!strcmp(argv[cmd_index], "-print")) PRINT = true;
+		else if (!strcmp(argv[cmd_index], "-resolve")) RESOLVE = true;
+		else if (!strcmp(argv[cmd_index], "-typecheck")) TYPECHECK = true;
+		else if (!strcmp(argv[cmd_index], "-codegen")) {
+			if (cmd_index + 3 > argc) return 1;
+			IN_FILE_NAME = strdup(argv[cmd_index + 1]);
+			OUT_FILE_NAME = strdup(argv[cmd_index + 2]);
+			CODEGEN = true;
+			cmd_index += 2;
+		} else if (!strcmp(argv[cmd_index], "-o")) {
+			OUT_FILE_NAME = strdup(argv[cmd_index + 1]);
+			COMPLETE = true;
+			cmd_index++;
+		} else if (!IN_FILE_NAME) {
+			IN_FILE_NAME = strdup(argv[cmd_index]);
+			COMPLETE = true;
+		} else {
+			fprintf(stderr, "Could not parse arguments\n");
+			return 1;
+		}
+		cmd_index++;
+	}
+
+	// Make sure input file was passed
+	if (!IN_FILE_NAME) {
+		fprintf(stderr, "No input file specified\n");
+		return 1;
+	}
+
+	// Check for Output File
+	if (!OUT_FILE_NAME) {
+		OUT_FILE_NAME = strdup(IN_FILE_NAME);
+		strcat(OUT_FILE_NAME, ".s");
 	}
 
 	/* Open file to scan */
-	yyin = fopen(argv[2],"r");
+	yyin = fopen(IN_FILE_NAME,"r");
 	if(!yyin) {
 		printf("Could not open %s\n", argv[2]);
 		return 1;
@@ -105,9 +132,9 @@ int main (int argc, char * argv[]) {
 			}
 			if (CODEGEN || COMPLETE) {
 				int scratch_table [6] = {0};
-				FILE * OUTPUT_FILE = fopen(FILE_NAME, "w");
+				FILE * OUTPUT_FILE = fopen(OUT_FILE_NAME, "w");
 				if (!OUTPUT_FILE) {
-					fprintf(stderr, "Could not write to %s.\n", FILE_NAME);
+					fprintf(stderr, "Could not write to %s.\n", OUT_FILE_NAME);
 					return 1;
 				}
 				stmt_codegen(parser_result, scratch_table, OUTPUT_FILE);
@@ -117,15 +144,18 @@ int main (int argc, char * argv[]) {
 					return 1;
 				}
 			if (COMPLETE) {
-				if (execvp("gcc", "-c %s -o %s.o", FILE_NAME) < 0) {
+				char assembly_string [256] = {0};
+				snprintf(assembly_string, 256, "-c %s", OUT_FILE_NAME);
+				printf(assembly_string);
+				if (execv("gcc", assembly_string) < 0) {
 					fprintf(stderr, AC_RED "assembly failed\n");
 					return 1;
 				}
-				if (execvp("gcc", "%s.o bin/library.o", FILE_NAME) < 0) {
+				if (execvp("gcc", "%s.o bin/library.o", OUT_FILE_NAME) < 0) {
 					fprintf(stderr, AC_RED "linking failed\n");
 					return 1;
 				}
-				if (execvp("rm", "%s.o %s", FILE_NAME) < 0) {
+				if (execvp("rm", "%s.o %s", OUT_FILE_NAME, OUT_FILE_NAME) < 0) {
 					fprintf(stderr, AC_RED "removing garbage files failed\n");
 					return 1;
 				}

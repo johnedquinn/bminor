@@ -214,10 +214,14 @@ void stmt_codegen (struct stmt * s, int scratch_table [], FILE * stream) {
 			e = s->expr;
 			while (e) {
             	expr_codegen(e->left, scratch_table, stream);
-            	fprintf(stream, "MOVQ %s, %rdi\n", scratch_name(e->left->reg));
 				if (e->left->kind == EXPR_NAM) {
+					if (e->left->symbol->type->kind == TYPE_STRING)
+            			fprintf(stream, "MOVQ $%s, %rdi\n", symbol_codegen(e->left->symbol));
+					else
+            			fprintf(stream, "MOVQ %s, %rdi\n", scratch_name(e->left->reg));
 					type_t_print_stmt(e->left->symbol->type->kind, stream);
 				} else {
+            		fprintf(stream, "MOVQ %s, %rdi\n", scratch_name(e->left->reg));
 					expr_t_print_stmt(e->left->kind, stream);
 				}
             	scratch_free(scratch_table, e->left->reg);

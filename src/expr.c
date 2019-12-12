@@ -693,7 +693,7 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
             fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-            fprintf(stream, "JLT %s\n", label_name(true_label));
+            fprintf(stream, "JL %s\n", label_name(true_label));
             fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
             fprintf(stream, "JMP %s\n", label_name(done_label));
             fprintf(stream, "%s:\n", label_name(true_label));
@@ -708,7 +708,7 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
             fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-            fprintf(stream, "JGT %s\n", label_name(true_label));
+            fprintf(stream, "JG %s\n", label_name(true_label));
             fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
             fprintf(stream, "JMP %s\n", label_name(done_label));
             fprintf(stream, "%s:\n", label_name(true_label));
@@ -753,7 +753,7 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
             fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-            fprintf(stream, "JEQ %s\n", label_name(true_label));
+            fprintf(stream, "JE %s\n", label_name(true_label));
             fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
             fprintf(stream, "JMP %s\n", label_name(done_label));
             fprintf(stream, "%s:\n", label_name(true_label));

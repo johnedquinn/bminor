@@ -74,12 +74,12 @@ void stripStringChar() {
 	int i, j;
 	for (i = 1; i < length; i++) {
 		yytext[i - subLength] = yytext[i];
-		if (yytext[i] == '\\') {
+		/*if (yytext[i] == '\\') {
 			if (nextIsEscapable(&yytext[i], subLength)) {
 				i += 1;
 				subLength += 1;
 			}
-		}
+		}*/
 	}
 	for (j = length - 1; j >= length - subLength - 1; j--) {
 		yytext[j] = 0;

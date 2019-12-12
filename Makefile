@@ -25,6 +25,11 @@ src/scanner.c: src/scanner.flex include/parser.h include/token.h
 src/parser.c include/parser.h: src/parser.bison include/token.h
 	bison --defines=include/parser.h --output=src/parser.c -v $<
 
+temp: x.bminor bminor
+	./bminor -codegen x.bminor out.s
+	gcc -c out.s -o out.o
+	gcc out.o bin/library.o -o program
+
 ## Make clean
 clean:
 	rm -f  bminor src/parser.output src/parser.c include/parser.h src/scanner.c src/lex.yy.c bin/*.o

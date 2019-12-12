@@ -38,7 +38,9 @@ struct symbol * symbol_copy(struct symbol * s) {
 // @TODO: check if param stuff needed
 const char * symbol_codegen (struct symbol * s) {
     // Global variables
-    if (s->kind == SYMBOL_GLOBAL) return s->name;
+    if (s->kind == SYMBOL_GLOBAL) {
+        return s->name;
+    }
 
     // Local variables
     int offset = 8 + s->which * 8;
