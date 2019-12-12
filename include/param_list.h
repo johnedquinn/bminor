@@ -33,4 +33,5 @@ void param_list_resolve (struct param_list * p, struct hash_table * head);
 struct param_list * param_list_copy (struct param_list * target);
 void param_list_delete (struct param_list * p);
 bool param_list_equals (struct param_list * a, struct param_list * b);
+void param_list_codegen(struct param_list * p, int scratch_table [], FILE * stream);
 #endif

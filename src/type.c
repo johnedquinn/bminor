@@ -33,7 +33,10 @@ void type_print (struct type * t) {
     }
 }
 
-void type_t_print_stmt (type_t t, FILE * stream) {
+/// @func: type_t_print_stmt
+/// @desc: used for the print statement
+void type_t_print_stmt (struct type * type, FILE * stream) {
+    type_t t = type->kind;
     switch (t) {
 	case TYPE_BOOLEAN:
         fprintf(stream, "CALL print_boolean\n");
@@ -47,6 +50,11 @@ void type_t_print_stmt (type_t t, FILE * stream) {
 	case TYPE_STRING:
         fprintf(stream, "CALL print_string\n");
         break;
+	case TYPE_FUNCTION:
+        type_t_print_stmt(type->subtype, stream);
+        break;
+    case TYPE_ARRAY:
+    case TYPE_AUTO:
     default:
         fprintf(stderr, AC_RED "codegen error: " AC_RESET "cannot print passed type\n");
         break;

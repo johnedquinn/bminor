@@ -79,3 +79,13 @@ bool param_list_equals (struct param_list * a, struct param_list * b) {
     bool type_equal = type_equals(a->type, b->type);
     return param_equal && type_equal;
 }
+
+void param_list_codegen (struct param_list * p, int scratch_table [], FILE * stream) {
+    if (!p) return;
+    unsigned int param_index = 0;
+    while (p) {
+        fprintf(stream, "PUSHQ %s\n", arg_name(param_index));
+        param_index++;
+        p = p->next;
+    }
+}

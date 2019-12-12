@@ -22,6 +22,7 @@ struct symbol {
 	struct type *type;
 	char *name;
 	int which;
+	unsigned int string_index;
 };
 
 struct symbol * symbol_create( symbol_t kind, struct type *type, char *name );

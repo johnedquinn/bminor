@@ -72,8 +72,9 @@ void scope_bind (struct hash_table * head, const char * name, struct symbol * sy
         fprintf(stdout, "%s resolves to global %s\n", sym->name, sym->name);
     else
         fprintf(stdout, "%s resolves to param %d\n", sym->name, sym->which);
-}
 
+    MAX_LOCAL = sym->which;
+}
 // @name: scope_lookup
 // @desc: searches the entire stack for a variable
 struct symbol * scope_lookup (struct hash_table * head, const char * name) {

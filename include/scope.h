@@ -14,7 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern int NUM_RESOLVE_ERRORS;
+extern unsigned int NUM_RESOLVE_ERRORS;
+extern unsigned int MAX_LOCAL;
 
 void scope_enter (struct hash_table ** head);
 void scope_exit (struct hash_table ** head);

@@ -14,13 +14,24 @@
 #include <stdlib.h>
 
 /* GLOBALS */
-int NUM_SCAN_ERRORS = 0;
-int NUM_PARSE_ERRORS = 0;
-int NUM_RESOLVE_ERRORS = 0;
-int NUM_TYPECHECK_ERRORS = 0;
-int NUM_CODEGEN_ERRORS = 0;
+unsigned int NUM_SCAN_ERRORS = 0;
+unsigned int NUM_PARSE_ERRORS = 0;
+unsigned int NUM_RESOLVE_ERRORS = 0;
+unsigned int NUM_TYPECHECK_ERRORS = 0;
+unsigned int NUM_CODEGEN_ERRORS = 0;
 unsigned int SCRATCH_COUNTER = 0;
+unsigned int STRING_COUNTER = 0;
 unsigned int ARG_COUNTER = 0;
+unsigned int MAX_LOCAL = 0;
+
+
+bool SCAN = false;
+bool PARSE = false;
+bool PRINT = false;
+bool RESOLVE = false;
+bool TYPECHECK = false;
+bool CODEGEN = false;
+bool COMPLETE = false;
 
 /* EXTERNS */
 extern FILE *yyin;
@@ -39,13 +50,7 @@ void printTokenInfo(token_t t);
 int main (int argc, char * argv[]) {
 
 	/* Parse Arguments */
-	bool SCAN = false;
-	bool PARSE = false;
-	bool PRINT = false;
-	bool RESOLVE = false;
-	bool TYPECHECK = false;
-	bool CODEGEN = false;
-	bool COMPLETE = false;
+
 	char * IN_FILE_NAME = NULL;
 	char * OUT_FILE_NAME = NULL;
 

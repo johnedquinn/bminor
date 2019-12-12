@@ -79,3 +79,12 @@ const char * arg_name (int arg) {
     }
     return NULL; 
 }
+
+// @func : label_name
+// @desc : returns the label name
+const char * string_label_name (int label) {
+    char s [6];
+    sprintf(s, "_S%d", label);
+    char * new_s = strdup(s);
+    return new_s;
+}

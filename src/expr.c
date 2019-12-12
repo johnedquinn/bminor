@@ -53,12 +53,33 @@ struct expr * expr_create_string_literal (const char * str) {
     return e;
 }
 
-void expr_t_print_stmt (expr_t t, FILE * stream) {
+void expr_t_print_stmt (struct expr * e, FILE * stream) {
+    //if (!e) return;
+    expr_t t = e->kind;
     switch (t) {
         case EXPR_INT:
+        case EXPR_ADD:
+	    case EXPR_SUB:
+	    case EXPR_MUL:
+	    case EXPR_MOD:
+	    case EXPR_DIV:
+        case EXPR_NEG:
+        case EXPR_POS:
+        case EXPR_POW:
+        case EXPR_INC:
+        case EXPR_DEC:
             fprintf(stream, "CALL print_integer\n");
             break;
         case EXPR_BUL:
+        case EXPR_NOT:
+        case EXPR_LES:
+        case EXPR_GRE:
+        case EXPR_EQL:
+        case EXPR_NEQ:
+        case EXPR_LEQ:
+        case EXPR_GEQ:
+        case EXPR_AND:
+        case EXPR_ORR:
             fprintf(stream, "CALL print_boolean\n");
             break;
         case EXPR_CHR:
@@ -66,6 +87,21 @@ void expr_t_print_stmt (expr_t t, FILE * stream) {
             break;
         case EXPR_STR:
             fprintf(stream, "CALL print_string\n");
+            break;
+	    case EXPR_FNC:
+            expr_t_print_stmt(e->left, stream);
+            break;
+        case EXPR_PRN:
+            expr_t_print_stmt(e->left, stream);
+            break;
+        case EXPR_ASN:
+            expr_t_print_stmt(e->left, stream);
+            break;
+        case EXPR_IND:
+        case EXPR_ARG:
+            break;
+        case EXPR_NAM:
+            type_t_print_stmt(e->symbol->type, stream);
             break;
         default:
             fprintf(stderr, AC_RED "codegen error: " AC_RESET "cannot print passed type\n");
@@ -379,6 +415,11 @@ void expr_resolve (struct expr * e, struct hash_table * head) {
             fprintf(stderr, AC_RED "resolve error:" AC_RESET " %s is not defined.\n", e->name);
             NUM_RESOLVE_ERRORS++;
         }
+
+    ///////////////////////// @@@@@@@@@@@@@@@@@@@@@@@@@
+    } else if (e->kind == EXPR_STR) {
+        e->symbol = symbol_create(SYMBOL_GLOBAL, type_create(TYPE_STRING, 0, 0), "_S_");
+        e->symbol->string_index = STRING_COUNTER++;
     } else {
         expr_resolve(e->left, head);
         expr_resolve(e->right, head);
@@ -689,11 +730,11 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
         case EXPR_LES:
             true_label = label_create();
             done_label = label_create();
-            e->reg = e->right->reg;
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
+            e->reg = e->right->reg;
             fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-            fprintf(stream, "JL %s\n", label_name(true_label));
+            fprintf(stream, "JG %s\n", label_name(true_label));
             fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
             fprintf(stream, "JMP %s\n", label_name(done_label));
             fprintf(stream, "%s:\n", label_name(true_label));
@@ -704,11 +745,11 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
         case EXPR_GRE:
             true_label = label_create();
             done_label = label_create();
-            e->reg = e->right->reg;
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
+            e->reg = e->right->reg;
             fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-            fprintf(stream, "JG %s\n", label_name(true_label));
+            fprintf(stream, "JL %s\n", label_name(true_label));
             fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
             fprintf(stream, "JMP %s\n", label_name(done_label));
             fprintf(stream, "%s:\n", label_name(true_label));
@@ -719,11 +760,11 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
         case EXPR_LEQ:
             true_label = label_create();
             done_label = label_create();
-            e->reg = e->right->reg;
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
+            e->reg = e->right->reg;
             fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-            fprintf(stream, "JLE %s\n", label_name(true_label));
+            fprintf(stream, "JGE %s\n", label_name(true_label));
             fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
             fprintf(stream, "JMP %s\n", label_name(done_label));
             fprintf(stream, "%s:\n", label_name(true_label));
@@ -734,11 +775,11 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
         case EXPR_GEQ:
             true_label = label_create();
             done_label = label_create();
-            e->reg = e->right->reg;
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
+            e->reg = e->right->reg;
             fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-            fprintf(stream, "JGE %s\n", label_name(true_label));
+            fprintf(stream, "JLE %s\n", label_name(true_label));
             fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
             fprintf(stream, "JMP %s\n", label_name(done_label));
             fprintf(stream, "%s:\n", label_name(true_label));
@@ -749,9 +790,9 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
         case EXPR_EQL:
             true_label = label_create();
             done_label = label_create();
-            e->reg = e->right->reg;
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
+            e->reg = e->right->reg;
             fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
             fprintf(stream, "JE %s\n", label_name(true_label));
             fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
@@ -764,9 +805,9 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
         case EXPR_NEQ:
             true_label = label_create();
             done_label = label_create();
-            e->reg = e->right->reg;
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
+            e->reg = e->right->reg;
             fprintf(stream, "CMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
             fprintf(stream, "JNE %s\n", label_name(true_label));
             fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
@@ -779,13 +820,13 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
         case EXPR_AND:
             done_label = label_create();
             fail_label = label_create();
-            e->reg = e->right->reg;
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
+            e->reg = e->right->reg;
             fprintf(stream, "CMP $0, %s\n", scratch_name(e->left->reg));
-            fprintf(stream, "JEQ %s\n", label_name(fail_label));
+            fprintf(stream, "JE %s\n", label_name(fail_label));
             fprintf(stream, "CMP $0, %s\n", scratch_name(e->right->reg));
-            fprintf(stream, "JEQ %s\n", label_name(fail_label));
+            fprintf(stream, "JE %s\n", label_name(fail_label));
             fprintf(stream, "MOVQ $1, %s\n", scratch_name(e->reg));
             fprintf(stream, "JMP %s\n", label_name(done_label));
             fprintf(stream, "%s:\n", label_name(fail_label));
@@ -796,13 +837,13 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
         case EXPR_ORR:
             done_label = label_create();
             success_label = label_create();
-            e->reg = e->right->reg;
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
+            e->reg = e->right->reg;
             fprintf(stream, "CMP $1, %s\n", scratch_name(e->left->reg));
-            fprintf(stream, "JEQ %s\n", label_name(success_label));
+            fprintf(stream, "JE %s\n", label_name(success_label));
             fprintf(stream, "CMP $1, %s\n", scratch_name(e->right->reg));
-            fprintf(stream, "JEQ %s\n", label_name(success_label));
+            fprintf(stream, "JE %s\n", label_name(success_label));
             fprintf(stream, "MOVQ $0, %s\n", scratch_name(e->reg));
             fprintf(stream, "JMP %s\n", label_name(done_label));
             fprintf(stream, "%s:\n", label_name(success_label));
@@ -825,7 +866,10 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
             break;
         case EXPR_NAM:
             e->reg = scratch_alloc(scratch_table);
-            fprintf(stream, "MOVQ %s, %s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
+            /*if (e->symbol->type->kind == TYPE_STRING)
+                fprintf(stream, "MOVQ $%s, %s\n", string_label_name(e->symbol->string_index), scratch_name(e->reg));
+            else*/
+                fprintf(stream, "MOVQ %s, %s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
             break;
         case EXPR_INT:
         case EXPR_BUL:
@@ -836,9 +880,11 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
         /// @TODO: String --> WRONG
         case EXPR_STR:
             fprintf(stream, ".data\n");
-            fprintf(stream, "%s:\n", symbol_codegen(e->symbol));
-            fprintf(stream, ".string \"%s\"", e->string_literal);
+            //fprintf(stream, "%s:\n", symbol_codegen(e->symbol));
+            fprintf(stream, "%s:\n", string_label_name(e->symbol->string_index));
+            fprintf(stream, ".string \"%s\"\n", e->string_literal);
             fprintf(stream, ".text\n");
+            //e->symbol->string_index = STRING_COUNTER++;
             break;
         /// @TODO: Error
         case EXPR_NUL:

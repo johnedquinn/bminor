@@ -15,6 +15,7 @@ struct decl * decl_create (char * name, struct type * type,
         decl->type = type;
         decl->code = code;
         decl->next = next;
+        decl->max_local = 0;
         if (value) decl->value = value;
         else {
             if (type->kind == TYPE_STRING) decl->value = expr_create_string_literal("");
@@ -61,10 +62,12 @@ void decl_resolve (struct decl * d, struct hash_table * head) {
     scope_bind(head, d->name,d->symbol);
     expr_resolve(d->value, head);
     if (d->code) {
+        MAX_LOCAL = 0;
         scope_enter(&head);
         param_list_resolve(d->type->params, head);
         stmt_resolve(d->code, head);
         scope_exit(&head);
+        d->max_local = MAX_LOCAL;
     }
     decl_resolve(d->next, head);
 }
@@ -129,9 +132,10 @@ void decl_codegen (struct decl * d, int scratch_table [], FILE * stream) {
                 fprintf(stream, "\tMOVQ %rsp, %rbp\n");
 
                 // @TODO: handle arguments
+                param_list_codegen(d->type->params, scratch_table, stream);
 
                 // @TODO: ALLOCATE LOCAL REGISTERS
-                //fprintf(stream, "SUBQ "); 
+                fprintf(stream, "\tSUBQ $%d, %rsp\n", (d->max_local + 1) * 8);
 
                 // Store Calle-Saved Registers
                 fprintf(stream, "\tPUSHQ %rbx\n");
@@ -141,6 +145,7 @@ void decl_codegen (struct decl * d, int scratch_table [], FILE * stream) {
                 fprintf(stream, "\tPUSHQ %r15\n");
 
                 // Grab params and put on stack
+
 
                 // @TODO: BODY & RETURNS
                 stmt_codegen(d->code, scratch_table, stream);
@@ -170,6 +175,23 @@ void decl_codegen (struct decl * d, int scratch_table [], FILE * stream) {
             }
             break;
         case SYMBOL_LOCAL:
+            /// @TODO: Do String stuff
+            if (d->type->kind == TYPE_STRING) {
+                fprintf(stream, ".data\n");
+                fprintf(stream, "%s:\n", string_label_name(d->value->symbol->string_index));//string_label_name(STRING_COUNTER));
+                fprintf(stream, ".string \"%s\"\n", d->value->string_literal);
+                fprintf(stream, ".text\n");
+                fprintf(stream, "\tMOVQ $%s, %s\n", string_label_name(d->value->symbol->string_index), symbol_codegen(d->symbol));
+                //fprintf(stream, "\tMOVQ $%s, %s\n", string_label_name(d->symbol->string_index), symbol_codegen(d->symbol));
+                //d->symbol->string_index = STRING_COUNTER++;
+            } else {
+                if (d->value) {
+                    expr_codegen(d->value, scratch_table, stream);
+                    fprintf(stream, "\tMOVQ %s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+                    scratch_free(scratch_table, d->value->reg);
+                }
+            }
+
             break;
         case SYMBOL_PARAM:
             break;

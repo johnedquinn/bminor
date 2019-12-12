@@ -195,9 +195,9 @@ void stmt_codegen (struct stmt * s, int scratch_table [], FILE * stream) {
 			else_label = label_create();
 			done_label = label_create();
 			expr_codegen(s->expr, scratch_table, stream);
-			fprintf(stream, "CMP $0, %s\n", scratch_name(s->expr->reg));
+			fprintf(stream, "CMP $1, %s\n", scratch_name(s->expr->reg));
 			scratch_free(scratch_table, s->expr->reg);
-			fprintf(stream, "JE %s\n", label_name(else_label));
+			fprintf(stream, "JNE %s\n", label_name(else_label));
 			stmt_codegen(s->body, scratch_table, stream);
 			fprintf(stream, "JMP %s\n", label_name(done_label));
 			fprintf(stream, "%s:\n", label_name(else_label));
@@ -215,14 +215,17 @@ void stmt_codegen (struct stmt * s, int scratch_table [], FILE * stream) {
 			while (e) {
             	expr_codegen(e->left, scratch_table, stream);
 				if (e->left->kind == EXPR_NAM) {
-					if (e->left->symbol->type->kind == TYPE_STRING)
+					if (e->left->symbol->type->kind == TYPE_STRING && e->left->symbol->kind == SYMBOL_GLOBAL)
             			fprintf(stream, "MOVQ $%s, %rdi\n", symbol_codegen(e->left->symbol));
 					else
             			fprintf(stream, "MOVQ %s, %rdi\n", scratch_name(e->left->reg));
-					type_t_print_stmt(e->left->symbol->type->kind, stream);
+					type_t_print_stmt(e->left->symbol->type, stream);
+				} else if (e->left->kind == EXPR_STR) {
+            		fprintf(stream, "MOVQ $%s, %rdi\n", string_label_name(e->left->symbol->string_index));
+					type_t_print_stmt(e->left->symbol->type, stream);
 				} else {
             		fprintf(stream, "MOVQ %s, %rdi\n", scratch_name(e->left->reg));
-					expr_t_print_stmt(e->left->kind, stream);
+					expr_t_print_stmt(e->left, stream);
 				}
             	scratch_free(scratch_table, e->left->reg);
 				e = e->right;
@@ -231,7 +234,10 @@ void stmt_codegen (struct stmt * s, int scratch_table [], FILE * stream) {
 		/// @TODO: Check
 		case STMT_RETURN:
 			expr_codegen(s->expr, scratch_table, stream);
-			fprintf(stream, "\tMOVQ %s, %rax\n", scratch_name(s->expr->reg));
+			if (s->expr->kind == EXPR_STR)
+				fprintf(stream, "\tMOVQ $%s, %rax\n", string_label_name(s->expr->symbol->string_index));
+			else
+				fprintf(stream, "\tMOVQ %s, %rax\n", scratch_name(s->expr->reg));
             fprintf(stream, "\tPOPQ %r15\n");
             fprintf(stream, "\tPOPQ %r14\n");
             fprintf(stream, "\tPOPQ %r13\n");
@@ -250,7 +256,7 @@ void stmt_codegen (struct stmt * s, int scratch_table [], FILE * stream) {
 			fprintf(stream, "%s:\n", label_name(begin_label));
 			expr_codegen(s->expr, scratch_table, stream);
 			fprintf(stream, "CMP $0, %s\n", scratch_name(s->expr->reg));
-			fprintf(stream, "JE %s\n", label_name(done_label));
+			fprintf(stream, "JNE %s\n", label_name(done_label));
 			stmt_codegen(s->body, scratch_table, stream);
 			expr_codegen(s->next_expr, scratch_table, stream);
 			scratch_free(scratch_table, s->next_expr->reg);
