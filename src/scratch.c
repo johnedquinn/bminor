@@ -1,5 +1,5 @@
 
-#include "scratch.h"
+#include "../include/scratch.h"
 
 // @func : scratch_alloc
 // @desc : allocate a register

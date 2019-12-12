@@ -3,7 +3,7 @@
 // @desc   : defines the expr struct
 // @notes  : NA
 
-#include "expr.h"
+#include "../include/expr.h"
 
 // @name : expr_create
 // @desc : creates an expr struct
@@ -98,6 +98,8 @@ void expr_t_print_stmt (struct expr * e, FILE * stream) {
             expr_t_print_stmt(e->left, stream);
             break;
         case EXPR_IND:
+            type_t_print_stmt(e->left->symbol->type, stream);
+            break;
         case EXPR_ARG:
             break;
         case EXPR_NAM:
@@ -415,8 +417,6 @@ void expr_resolve (struct expr * e, struct hash_table * head) {
             fprintf(stderr, AC_RED "resolve error:" AC_RESET " %s is not defined.\n", e->name);
             NUM_RESOLVE_ERRORS++;
         }
-
-    ///////////////////////// @@@@@@@@@@@@@@@@@@@@@@@@@
     } else if (e->kind == EXPR_STR) {
         e->symbol = symbol_create(SYMBOL_GLOBAL, type_create(TYPE_STRING, 0, 0), "_S_");
         e->symbol->string_index = STRING_COUNTER++;
@@ -440,7 +440,9 @@ struct type * expr_typecheck (struct expr * e) {
         case EXPR_MUL:
         case EXPR_MOD:
         case EXPR_DIV:
-            if (lt->kind != TYPE_INTEGER || rt->kind != TYPE_INTEGER) {
+            if (lt->kind == TYPE_INTEGER && (rt->kind == TYPE_INTEGER || rt->kind == TYPE_ARRAY)){// && rt->subtype->kind == TYPE_INTEGER)) {
+
+            } else {
                 fprintf(stderr, AC_RED "type error: " AC_RESET "cannot perform arithmetic operations on ");
                 type_t_print_err(lt->kind);
                 fprintf(stderr, " (");
@@ -604,7 +606,7 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
 
     if (!e) return;
 
-    int done_label, true_label, fail_label, success_label;
+    int done_label, true_label, fail_label, success_label, extra_scratch;
 
     switch (e->kind) {
         case EXPR_ADD:
@@ -630,7 +632,6 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
             e->reg = e->right->reg;
             scratch_free(scratch_table, e->left->reg);
             break;
-        /// @TODO: Check for correctness
         case EXPR_POW:
             expr_codegen(e->left, scratch_table, stream);
             expr_codegen(e->right, scratch_table, stream);
@@ -675,9 +676,12 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
             break;
         case EXPR_NEG:
             expr_codegen(e->right, scratch_table, stream);
+            extra_scratch = scratch_alloc(scratch_table);
             fprintf(stream, "MOVQ %s, %rax\n", scratch_name(e->right->reg));
-            fprintf(stream, "IMULQ $-1\n");
+            fprintf(stream, "MOVQ $-1, %s\n", scratch_name(extra_scratch));
+            fprintf(stream, "IMULQ %s\n", scratch_name(extra_scratch));
             fprintf(stream, "MOVQ %rax, %s\n", scratch_name(e->right->reg));
+            scratch_free(scratch_table, extra_scratch);
             e->reg = e->right->reg;
             break;
         case EXPR_POS:
@@ -863,12 +867,23 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
             break;
         /// @TODO: Indexing
         case EXPR_IND:
+            expr_codegen(e->right, scratch_table, stream);
+            e->reg = scratch_alloc(scratch_table);
+            extra_scratch = scratch_alloc(scratch_table);
+            fprintf(stream, "LEAQ %s, %s\n", symbol_codegen(e->left->symbol), scratch_name(extra_scratch));
+            fprintf(stream, "MOVQ -530(%s, %s, 8), %s\n", scratch_name(extra_scratch), scratch_name(e->right->reg), scratch_name(e->reg));
+
+            //fprintf(stream, "MOVQ %s, %rdi\n", scratch_name(e->reg));
+            //fprintf(stream, "CALL print_integer\n");
+
+            //fprintf(stream, "MOVQ %s, %rdi\n", scratch_name(extra_scratch));
+            //fprintf(stream, "CALL print_integer\n");
+
+            scratch_free(scratch_table, extra_scratch);
+            scratch_free(scratch_table, e->right->reg);
             break;
         case EXPR_NAM:
             e->reg = scratch_alloc(scratch_table);
-            /*if (e->symbol->type->kind == TYPE_STRING)
-                fprintf(stream, "MOVQ $%s, %s\n", string_label_name(e->symbol->string_index), scratch_name(e->reg));
-            else*/
                 fprintf(stream, "MOVQ %s, %s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
             break;
         case EXPR_INT:
@@ -877,19 +892,14 @@ void expr_codegen (struct expr * e, int scratch_table [], FILE * stream) {
             e->reg = scratch_alloc(scratch_table);
             fprintf(stream, "MOVQ $%d, %s\n", e->literal_value, scratch_name(e->reg));
             break;
-        /// @TODO: String --> WRONG
         case EXPR_STR:
             fprintf(stream, ".data\n");
-            //fprintf(stream, "%s:\n", symbol_codegen(e->symbol));
             fprintf(stream, "%s:\n", string_label_name(e->symbol->string_index));
             fprintf(stream, ".string \"%s\"\n", e->string_literal);
             fprintf(stream, ".text\n");
-            //e->symbol->string_index = STRING_COUNTER++;
             break;
         /// @TODO: Error
         case EXPR_NUL:
-           break; 
-        /// @TODO: Error
         default:
             break;
     }

@@ -24,7 +24,7 @@ Is effectively this C code:
 x = integer_power(a,b);
 */
 
-#include "library.h"
+#include "include/library.h"
 
 void print_integer (long x) { printf("%ld",x); }
 void print_integer_err (long x) { fprintf(stderr, "%ld",x); }

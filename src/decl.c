@@ -3,7 +3,7 @@
 // @desc   : defines the decl struct
 // @notes  : NA
 
-#include "decl.h"
+#include "../include/decl.h"
 
 // @name : decl_create
 // @desc : creates a declaration pointer
@@ -131,10 +131,10 @@ void decl_codegen (struct decl * d, int scratch_table [], FILE * stream) {
                 fprintf(stream, "\tPUSHQ %rbp\n");
                 fprintf(stream, "\tMOVQ %rsp, %rbp\n");
 
-                // @TODO: handle arguments
+                // handle arguments
                 param_list_codegen(d->type->params, scratch_table, stream);
 
-                // @TODO: ALLOCATE LOCAL REGISTERS
+                // ALLOCATE LOCAL REGISTERS
                 fprintf(stream, "\tSUBQ $%d, %rsp\n", (d->max_local + 1) * 8);
 
                 // Store Calle-Saved Registers
@@ -144,10 +144,7 @@ void decl_codegen (struct decl * d, int scratch_table [], FILE * stream) {
                 fprintf(stream, "\tPUSHQ %r14\n");
                 fprintf(stream, "\tPUSHQ %r15\n");
 
-                // Grab params and put on stack
-
-
-                // @TODO: BODY & RETURNS
+                // BODY & RETURNS
                 stmt_codegen(d->code, scratch_table, stream);
 
                 // Restore Calle-Saved Registers
@@ -157,7 +154,7 @@ void decl_codegen (struct decl * d, int scratch_table [], FILE * stream) {
                 fprintf(stream, "\tPOPQ %r12\n");
                 fprintf(stream, "\tPOPQ %rbx\n");
 
-                //
+                // Returning
                 fprintf(stream, "\tMOVQ %rbp, %rsp\n");
                 fprintf(stream, "\tPOPQ %rbp\n");
                 fprintf(stream, "\tRET\n");
@@ -167,23 +164,31 @@ void decl_codegen (struct decl * d, int scratch_table [], FILE * stream) {
                 fprintf(stream, ".data\n");
                 fprintf(stream, "%s: .string \"%s\"\n", d->name, d->value->string_literal);
                 fprintf(stream, ".text\n");
-            }
-            else {
+            } else if (d->type->kind == TYPE_ARRAY) {
+                /// @TODO: Array
+                fprintf(stream, ".globl %s\n", d->name);
+                fprintf(stream, ".data\n");
+                fprintf(stream, "%s:\n", d->name);
+                struct expr * e = d->value;
+                while (e) {
+                    fprintf(stream, ".quad %d\n", e->literal_value);
+                    e = e->right;
+                }
+                fprintf(stream, ".text\n");
+                
+            }else {
                 fprintf(stream, ".data\n");
                 fprintf(stream, "%s: .quad %d\n", d->name, d->value->literal_value);
                 fprintf(stream, ".text\n");
             }
             break;
         case SYMBOL_LOCAL:
-            /// @TODO: Do String stuff
             if (d->type->kind == TYPE_STRING) {
                 fprintf(stream, ".data\n");
-                fprintf(stream, "%s:\n", string_label_name(d->value->symbol->string_index));//string_label_name(STRING_COUNTER));
+                fprintf(stream, "%s:\n", string_label_name(d->value->symbol->string_index));
                 fprintf(stream, ".string \"%s\"\n", d->value->string_literal);
                 fprintf(stream, ".text\n");
                 fprintf(stream, "\tMOVQ $%s, %s\n", string_label_name(d->value->symbol->string_index), symbol_codegen(d->symbol));
-                //fprintf(stream, "\tMOVQ $%s, %s\n", string_label_name(d->symbol->string_index), symbol_codegen(d->symbol));
-                //d->symbol->string_index = STRING_COUNTER++;
             } else {
                 if (d->value) {
                     expr_codegen(d->value, scratch_table, stream);
@@ -191,7 +196,6 @@ void decl_codegen (struct decl * d, int scratch_table [], FILE * stream) {
                     scratch_free(scratch_table, d->value->reg);
                 }
             }
-
             break;
         case SYMBOL_PARAM:
             break;

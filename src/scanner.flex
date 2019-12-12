@@ -1,8 +1,7 @@
 %{
 #include <stdbool.h>
 #include <stdio.h>
-#include "parser.h"
-//#include "token.h"
+#include "../include/parser.h"
 void stripStringChar();
 bool stringOrIdentSizeIsOkay();
 bool nextIsEscapable(char * s, int subLength);
