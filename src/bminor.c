@@ -5,9 +5,9 @@
 */
 
 /* INCLUDES */
-#include "token.h"
-#include "stmt.h"
-#include "library.h"
+#include "../include/token.h"
+#include "../include/stmt.h"
+#include "../include/library.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -24,7 +24,7 @@ unsigned int STRING_COUNTER = 0;
 unsigned int ARG_COUNTER = 0;
 unsigned int MAX_LOCAL = 0;
 
-
+/* GLOBALS - PARSING VARS */
 bool SCAN = false;
 bool PARSE = false;
 bool PRINT = false;
@@ -45,15 +45,15 @@ char * getTokenString(token_t t);
 bool scanInfo (token_t t);
 void printTokenInfo(token_t t);
 
-/// Function: main
-/// Description: main driver for bminor
+/// @func: main
+/// @desc: main driver of compiler
 int main (int argc, char * argv[]) {
 
-	/* Parse Arguments */
-
+	// FILE NAMES
 	char * IN_FILE_NAME = NULL;
 	char * OUT_FILE_NAME = NULL;
 
+	// Need input file / arguments
 	if (argc == 1) {
 		return 1;
 	}
@@ -73,17 +73,18 @@ int main (int argc, char * argv[]) {
 			cmd_index += 2;
 		} else if (!strcmp(argv[cmd_index], "-o")) {
 			OUT_FILE_NAME = strdup(argv[cmd_index + 1]);
-			COMPLETE = true;
 			cmd_index++;
 		} else if (!IN_FILE_NAME) {
 			IN_FILE_NAME = strdup(argv[cmd_index]);
-			COMPLETE = true;
 		} else {
 			fprintf(stderr, "Could not parse arguments\n");
 			return 1;
 		}
 		cmd_index++;
 	}
+
+	// Check if Complete Flag Raised
+	if (!SCAN && !PARSE && !PRINT && !RESOLVE && !TYPECHECK && !CODEGEN) COMPLETE = true;
 
 	// Make sure input file was passed
 	if (!IN_FILE_NAME) {
@@ -148,6 +149,7 @@ int main (int argc, char * argv[]) {
 					fprintf(stderr, AC_CYAN "=======> " AC_RED "codegen failed: " AC_RESET "%d typechecking errors\n", NUM_CODEGEN_ERRORS);
 					return 1;
 				}
+			}
 			if (COMPLETE) {
 				char assembly_string [256] = {0};
 				snprintf(assembly_string, 256, "-c %s", OUT_FILE_NAME);
@@ -164,7 +166,6 @@ int main (int argc, char * argv[]) {
 					fprintf(stderr, AC_RED "removing garbage files failed\n");
 					return 1;
 				}
-			}
 			}
 			return 0;
 		} else {
